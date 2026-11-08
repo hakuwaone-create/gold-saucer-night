@@ -122,7 +122,7 @@ button.card.selected{transform:translateY(-15px) rotate(-2deg);box-shadow:0 0 22
 <section id="entry" class="panel"><h2>◆ 夜会への招待</h2><label for="name">プレイヤー名</label><input id="name" maxlength="20" placeholder="名前を入力"><button id="create">👑 新しい部屋を作る</button><p class="muted center">── または ──</p><label for="codeInput">6桁のルームコード</label><input id="codeInput" inputmode="numeric" maxlength="6" placeholder="000000"><button id="join" class="alt">🚪 部屋に参加する</button><p class="muted">初回は匿名ログインを使用します。アカウント登録は不要です。</p></section>
 <section id="room" class="panel hide"><h2>◆ 夜会の控室</h2><p class="muted center">ルームコード</p><div id="code" class="code"></div><button id="copy" class="alt">📋 コードをコピー</button><p id="status" class="center"></p><div id="players"></div><div class="row"><button id="ready">✋ 準備完了</button><button id="start" class="alt hide">🎮 ゲーム開始</button></div><button id="leave" class="alt">退出する</button><p class="muted">準備が整ったらホストがゲーム開始。手札とルーレットの判定はサーバーで管理します。</p></section>
 <aside id="declaredMini" class="declared-mini hide" aria-label="現在の宣言カード"><div class="declared-mini-label">宣言カード</div><div id="declaredMiniArt" class="declared-mini-card"></div><div id="declaredMiniRank" class="declared-mini-rank">Q</div></aside><section id="playing" class="panel hide"><h2>🎰 夜会、開幕！</h2><p id="gameInfo" class="center"></p><div id="gamePlayers"></div><p id="gameTurn" class="center"></p><div id="tablePlay" class="table-play"><div class="table-title">✦ TABLE · 伏せられたカード ✦</div><div id="tablePile" class="table-pile"></div><div id="declaredShow" class="declared-show hide"><div id="declaredArt" class="declared-art"></div><div id="declaredCaption">今回の宣言カード</div></div><div id="tableStatus" class="table-status"></div></div><div id="hand" class="hand"></div><p id="selectionInfo" class="muted center">手札から1〜3枚を選択</p><button id="playCards">🃏 選んだカードを伏せて出す</button><button id="acceptCards" class="alt hide">続行する（信じる）</button><button id="challengeCards" class="danger hide">🟥 LIAR!! 嘘を暴く</button><div id="revealBox" class="reveal hide"></div><div id="gunStage" class="gun-stage hide"><div id="gunStageImg" class="gun-stage-img"></div><div id="gunStageText">シリンダー回転中…</div></div><button id="trigger" class="danger hide">🔫 引き金を引く</button><div id="rouletteMessage" class="reveal hide"></div><p class="muted">LIAR!の判定とリボルバーはサーバーで処理。実弾位置は非公開です。</p><button id="rematch" class="alt hide">🔄 同じメンバーでもう一戦！</button><p id="rematchWait" class="muted center hide">🔄 ホストが「もう一戦！」を押すと、同じメンバーで再戦できます。退出せずにお待ちください。</p><button id="leavePlaying" class="alt">退出する</button></section>
-<p class="muted center">Ver.2.3 · DECLARED CARD HUD</p></main>
+<p class="muted center">Ver.2.4 · LIAR SOUND</p></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.10/dist/umd/supabase.min.js"></script>
 <script>
 "use strict";
@@ -148,6 +148,37 @@ function beep(freq=440,duration=.15,type="sine",volume=.09){
  if(!soundOn)return;
  try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.setValueAtTime(freq,audioCtx.currentTime);g.gain.setValueAtTime(volume,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+duration);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+duration)}catch(_){}
 }
+
+function liarSting(){
+ if(!soundOn)return;
+ try{
+  audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==="suspended")audioCtx.resume().catch(()=>{});
+  const ctx=audioCtx,t=ctx.currentTime+.015;
+  // Cinematic brass stabs: low impact, dissonant chord, then rising metallic flourish.
+  const tone=(freq,at,duration,type="sawtooth",vol=.075,endFreq=freq)=>{
+   const osc=ctx.createOscillator(),gain=ctx.createGain(),filter=ctx.createBiquadFilter();
+   osc.type=type;osc.frequency.setValueAtTime(freq,t+at);osc.frequency.exponentialRampToValueAtTime(Math.max(30,endFreq),t+at+duration);
+   filter.type="lowpass";filter.frequency.value=2300;
+   gain.gain.setValueAtTime(.0001,t+at);gain.gain.exponentialRampToValueAtTime(vol,t+at+.012);
+   gain.gain.exponentialRampToValueAtTime(.0001,t+at+duration);
+   osc.connect(filter);filter.connect(gain);gain.connect(ctx.destination);osc.start(t+at);osc.stop(t+at+duration+.02);
+  };
+  // Percussive impact noise, band-limited to avoid clipping and harshness.
+  const n=Math.floor(ctx.sampleRate*.32),buffer=ctx.createBuffer(1,n,ctx.sampleRate),samples=buffer.getChannelData(0);
+  for(let i=0;i<n;i++)samples[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*.075));
+  const noise=ctx.createBufferSource(),ng=ctx.createGain(),nf=ctx.createBiquadFilter();
+  noise.buffer=buffer;nf.type="lowpass";nf.frequency.value=1050;ng.gain.value=.22;
+  noise.connect(nf);nf.connect(ng);ng.connect(ctx.destination);noise.start(t);
+  tone(92,0,.42,"sawtooth",.16,46);
+  tone(185,.035,.55,"square",.055,155);
+  tone(277,.045,.52,"sawtooth",.048,247);
+  tone(370,.05,.48,"sawtooth",.04,330);
+  tone(550,.43,.19,"triangle",.075,850);
+  tone(830,.62,.38,"sawtooth",.075,650);
+  tone(1100,.65,.35,"triangle",.05,790);
+ }catch(_){}
+}
 $("soundToggle").onclick=()=>{soundOn=!soundOn;$("soundToggle").textContent=soundOn?"🔊 SOUND ON":"🔇 SOUND OFF";if(soundOn)beep(660,.12)};
 function fxClose(){gunSceneToken++;clearSoundTimers();$("fxLayer").classList.remove("fx-flash");clearTimeout(fxTimer);$("fxLayer").classList.remove("active");$("fxContent").replaceChildren();fxBusy=false}
 $("fxSkip").onclick=fxClose;
@@ -170,7 +201,8 @@ function revolverMarkup(extra=""){return '<div class="revolver photo '+extra+'" 
 function fxReveal(cards,loser,onComplete=null){
  const safe=Array.isArray(cards)?cards:[];
  const step=3200,first=1000,total=first+safe.length*step+900;
- fxShow('<div class="fx-title">LIAR!!</div><div class="fx-sub">裏か表か……運命の公開</div><div class="fx-cardrow" id="fxCards"></div><div class="fx-sub">敗者：'+escapeHtml(loser)+'</div>',total+1800,180);
+ fxShow('<div class="fx-title">LIAR!!</div><div class="fx-sub">裏か表か……運命の公開</div><div class="fx-cardrow" id="fxCards"></div><div class="fx-sub">敗者：'+escapeHtml(loser)+'</div>',total+1800,0);
+ liarSting();
  const row=$("fxCards"),token=gunSceneToken;
  safe.forEach((card,i)=>{
   const el=document.createElement("div");el.className="fx-card back";el.setAttribute("aria-label","伏せられたカード");row.append(el);
