@@ -285,13 +285,17 @@ function fxResult(result,winnerName=null,shotUser=null){
   if(token!==gunSceneToken)return;
   const title=$("shotTitle"),sub=$("shotSub"),gun=$("fxShotGun");
   if(!title||!sub)return;
-  title.textContent=bang?"BANG!!":"CLICK……";
+  title.textContent=bang?"バンッ！！":"カチッ！";
+  title.style.fontSize="clamp(38px,10vw,84px)";title.style.textShadow=bang?"0 0 24px #ff3434":"0 0 26px #65ff9c";title.style.color=bang?"#ff5757":"#a8ffbc";
   title.classList.toggle("fx-gold",!bang);
-  sub.textContent=bang?"💀 ELIMINATED":"✨ SURVIVED";
+  sub.textContent="……";
+  sub.style.fontSize="clamp(28px,8vw,66px)";sub.style.fontWeight="900";sub.style.letterSpacing=".12em";
   const avatarShot=$("fxAvatarShot");if(avatarShot)avatarShot.classList.add(bang?"cracked":"survived");if(gun&&bang)gun.style.transform=spectator?"translateX(15px) rotate(-7deg)":"scale(1.32)";
   if(bang)$("fxLayer").classList.add("fx-flash");
+  else if(gun){gun.style.transform=spectator?"translateX(9px) rotate(-3deg)":"scale(1.06)";}
  },1150);
  setTimeout(()=>{if(token===gunSceneToken)$("fxLayer").classList.remove("fx-flash")},1850);
+ setTimeout(()=>{if(token!==gunSceneToken)return;const sub=$("shotSub");if(!sub)return;sub.textContent=bang?"🔴 脱落！！":"🟢 生存！！";sub.style.color=bang?"#ff6666":"#72ff9a";sub.style.textShadow=bang?"0 0 20px #a90000":"0 0 20px #168e46";},1900);
  setTimeout(()=>{if(token!==gunSceneToken)return;resultSequenceActive=false;if(winnerName)fxWin(winnerName)},winnerName?3400:4000);
 }
 function updateGunStage(g){
