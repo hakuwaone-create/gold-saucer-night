@@ -207,7 +207,17 @@ function liarSting(){
 }
 $("soundToggle").onclick=()=>{soundOn=!soundOn;$("soundToggle").textContent=soundOn?"🔊 SOUND ON":"🔇 SOUND OFF";if(soundOn)beep(660,.12)};
 function fxClose(){gunSceneToken++;clearSoundTimers();$("fxLayer").classList.remove("fx-flash");clearTimeout(fxTimer);$("fxLayer").classList.remove("active");$("fxContent").replaceChildren();fxBusy=false}
-$("fxSkip").onclick=fxClose;
+$("fxSkip").onclick=()=>{
+ const wasResult=resultSequenceActive;
+ fxClose();
+ if(wasResult)resultSequenceActive=false;
+ if(gameData?.phase==="roulette"){
+  gunReady=true;
+  const trigger=$("trigger");
+  if(trigger)trigger.disabled=gameData.loser!==user?.id||busy;
+ }
+ // Skipping affects only the current animation; future state changes still animate.
+};
 function fxShow(html,duration=2200,tone=0){gunSceneToken++;fxBusy=true;$("fxContent").innerHTML=html;$("fxLayer").classList.add("active");if(tone)beep(tone,.25,"sawtooth",.07);clearTimeout(fxTimer);fxTimer=setTimeout(fxClose,duration)}
 
 function decorateCard(el,rank){
@@ -308,7 +318,7 @@ function fxResult(result,winnerName=null,shotUser=null){
  },1150);
  setTimeout(()=>{if(token===gunSceneToken)$("fxLayer").classList.remove("fx-flash")},1850);
  setTimeout(()=>{if(token!==gunSceneToken)return;const sub=$("shotSub");if(!sub)return;sub.textContent=bang?"🔴 脱落！！":"🟢 生存！！";sub.style.color=bang?"#ff6666":"#72ff9a";sub.style.textShadow=bang?"0 0 20px #a90000":"0 0 20px #168e46";},1900);
- setTimeout(()=>{if(token!==gunSceneToken)return;resultSequenceActive=false;if(winnerName)fxWin(winnerName)},winnerName?3400:4000);
+ setTimeout(()=>{resultSequenceActive=false;if(token!==gunSceneToken)return;if(winnerName)fxWin(winnerName)},winnerName?3400:4000);
 }
 function updateGunStage(g){
  $("gunStage").classList.add("hide");
