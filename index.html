@@ -143,7 +143,7 @@ button.card.selected{transform:translateY(-15px) rotate(-2deg);box-shadow:0 0 22
 @keyframes crackFlash{0%{opacity:0}25%{opacity:1}100%{opacity:0;transform:scale(1.7) rotate(16deg)}}
 @keyframes avatarSurvive{0%,100%{transform:scale(1)}35%{transform:scale(1.1) rotate(-6deg)}70%{transform:scale(.97) rotate(4deg)}}
 @media(prefers-reduced-motion:reduce){.fx-avatar-shot.cracked .avatar{animation:none;opacity:.25;filter:grayscale(1)}.fx-avatar-shot.survived .avatar{animation:none}.fx-avatar-shot.cracked:after{animation:none;opacity:.6}}
-</style></head><body><button id="soundToggle" class="fx-sound" type="button">🔇 SOUND OFF</button><div id="fxLayer" class="fx-layer" aria-live="polite"><div id="fxContent"></div><button id="fxSkip" class="alt fx-skip" type="button">演出をスキップ</button></div><main><div class="crest">🎩🃏</div><h1>ゴールドソーサーの夜会</h1><div class="sub">GOLD SAUCER NIGHT · ONLINE</div>
+</style></head><body><button id="soundToggle" class="fx-sound" type="button">🔇 SOUND OFF</button><div id="fxLayer" class="fx-layer" aria-live="polite"><div id="fxContent"></div></div><main><div class="crest">🎩🃏</div><h1>ゴールドソーサーの夜会</h1><div class="sub">GOLD SAUCER NIGHT · ONLINE</div>
 <div id="message" class="notice hide" role="status"></div>
 <section id="entry" class="panel"><h2>◆ 夜会への招待</h2><label for="name">プレイヤー名</label><input id="name" maxlength="20" placeholder="名前を入力"><button id="create">👑 新しい部屋を作る</button><p class="muted center">── または ──</p><label for="codeInput">6桁のルームコード</label><input id="codeInput" inputmode="numeric" maxlength="6" placeholder="000000"><button id="join" class="alt">🚪 部屋に参加する</button><p class="muted">初回は匿名ログインを使用します。アカウント登録は不要です。</p></section>
 <section id="room" class="panel hide"><h2>◆ 夜会の控室</h2><p class="muted center">ルームコード</p><div id="code" class="code"></div><button id="copy" class="alt">📋 コードをコピー</button><p id="status" class="center"></p><div class="avatar-editor"><img id="myAvatarPreview" class="avatar lg" alt="自分のアイコン"><div><strong>🎭 キャラクターアイコン</strong><p class="muted">ヒカセンの画像を登録（正方形に切り抜き）</p><input type="file" id="avatarUpload" accept="image/*"><button type="button" id="avatarClear" class="alt">初期アイコンに戻す</button></div></div><div id="players"></div><div id="jokerModeBox" class="notice"><strong>🃏 JOKER’S REVENGE</strong><p id="jokerModeText" class="muted">通常ルール</p><label id="jokerModeControl" style="display:flex;align-items:center;gap:10px"><input id="jokerModeToggle" type="checkbox" style="width:22px;height:22px"> 特殊ルールを有効にする（ホストのみ）</label><p class="muted">ON：ジョーカーを1枚でも含むカードにLIARすると、出した人以外の生存者全員が順番にルーレット！</p></div><div class="row"><button id="ready">✋ 準備完了</button><button id="start" class="alt hide">🎮 ゲーム開始</button></div><button id="leave" class="alt">退出する</button><p class="muted">準備が整ったらホストがゲーム開始。手札とルーレットの判定はサーバーで管理します。</p></section>
@@ -207,7 +207,7 @@ function liarSting(){
 }
 $("soundToggle").onclick=()=>{soundOn=!soundOn;$("soundToggle").textContent=soundOn?"🔊 SOUND ON":"🔇 SOUND OFF";if(soundOn)beep(660,.12)};
 function fxClose(){gunSceneToken++;clearSoundTimers();$("fxLayer").classList.remove("fx-flash");clearTimeout(fxTimer);$("fxLayer").classList.remove("active");$("fxContent").replaceChildren();fxBusy=false}
-$("fxSkip").onclick=()=>{
+function obsoleteSkipHandler(){
  const wasResult=resultSequenceActive;
  fxClose();
  if(wasResult)resultSequenceActive=false;
@@ -269,9 +269,10 @@ function showGunScene(g){
  const own=g.loser===user.id;
  const target=gameData?.players?.find(p=>p.user_id===g.loser);fxShow('<div class="fx-gun-scene"><div class="fx-title fx-gold">ROULETTE</div><div class="fx-avatar-person">'+avatarHtml(g.loser,target?.name,"lg")+'<strong>'+escapeHtml(target?.name||"挑戦者")+'</strong></div><div id="fxGun" class="fx-gun-visual spinning"></div><div id="fxGunCaption" class="fx-gun-caption">シリンダーが回る……</div><button id="fxGunTrigger" class="danger fx-gun-action hide" type="button">🔫 引き金を引く</button></div>',120000);
  const token=gunSceneToken;
+ const gunButton=$("fxGunTrigger");if(gunButton){gunButton.classList.remove("hide");gunButton.onclick=async()=>{if(busy)return;gunButton.disabled=true;gunButton.textContent="⏳ 判定中…";try{await pullTrigger()}catch(e){error(e);gunButton.disabled=false;gunButton.textContent="🔫 もう一度引き金を引く";await refreshGame().catch(()=>{})}}}
  playSfx("spin");
  setTimeout(()=>{if(token!==gunSceneToken)return;const gun=$("fxGun");if(gun){gun.classList.remove("spinning");if(own)gun.classList.add("aimed")}const label=$("fxGunCaption");if(label)label.textContent=own?"銃口がこちらを向いた……":"敗者のリボルバーを見守る……";playSfx("cock")},2250);
- setTimeout(()=>{if(token!==gunSceneToken)return;gunReady=true;const btn=$("fxGunTrigger");if(btn&&own){btn.classList.remove("hide");btn.onclick=async()=>{if(!gunReady||busy)return;btn.disabled=true;btn.textContent="⏳ 判定中…";try{await pullTrigger()}catch(e){error(e);btn.disabled=false;btn.textContent="🔫 もう一度引き金を引く";await refreshGame().catch(()=>{})}}}const label=$("fxGunCaption");if(label)label.textContent=own?"覚悟はいいか？ 引き金を引け！":"敗者が引き金を引くのを待っています……"},3450);
+ setTimeout(()=>{if(token!==gunSceneToken)return;gunReady=true;const btn=$("fxGunTrigger");if(btn&&own){btn.classList.remove("hide");btn.onclick=async()=>{if(busy)return;btn.disabled=true;btn.textContent="⏳ 判定中…";try{await pullTrigger()}catch(e){error(e);btn.disabled=false;btn.textContent="🔫 もう一度引き金を引く";await refreshGame().catch(()=>{})}}}const label=$("fxGunCaption");if(label)label.textContent=own?"覚悟はいいか？ 引き金を引け！":"敗者が引き金を引くのを待っています……"},3450);
 }
 function showSpectatorScene(g){
  if(g.phase!=="roulette"||g.loser===user.id)return;
@@ -323,7 +324,7 @@ function fxResult(result,winnerName=null,shotUser=null){
 function updateGunStage(g){
  $("gunStage").classList.add("hide");
  if(g.phase!=="roulette"){gunReady=false;return}
- $("trigger").disabled=g.loser!==user.id||!gunReady||busy;
+ $("trigger").disabled=g.loser!==user.id||busy;
 }
 function fxWin(name){const p=gameData?.players?.find(x=>x.user_id===gameData?.winner);fxShow('<div class="fx-confetti">✨ 👑 ✨</div><div class="fx-title fx-gold">WINNER</div><div class="fx-avatar-person">'+avatarHtml(p?.user_id,name,"xl")+'<strong>'+escapeHtml(name)+'</strong></div><div class="fx-confetti">🎊 ✨ 🎊</div>',5000,880)}
 
@@ -430,7 +431,7 @@ async function refreshGame(){
  $("acceptCards").classList.toggle("hide",g.phase!=="challenge");$("acceptCards").disabled=!mine;
  $("challengeCards").classList.toggle("hide",g.phase!=="challenge");$("challengeCards").disabled=!mine;
  updateGunStage(g);
- $("trigger").classList.toggle("hide",g.phase!=="roulette");$("trigger").disabled=g.loser!==user.id||!gunReady;
+ $("trigger").classList.toggle("hide",g.phase!=="roulette");$("trigger").disabled=g.loser!==user.id||busy;
  const rev=$("revealBox");rev.classList.toggle("hide",g.phase!=="roulette");if(g.phase==="roulette"){rev.textContent="🟥 LIAR!　公開カード："+(g.reveal||[]).join(" · ")+"　｜　敗者："+(g.players.find(p=>p.user_id===g.loser)?.name||"不明")}
  if(g.phase==="finished"){$("revealBox").classList.remove("hide");$("revealBox").textContent="🏆 WINNER 🏆　"+(g.players.find(p=>p.user_id===g.winner)?.name||"")};
  if(g.phase==="challenge")$("selectionInfo").textContent="信じて続行するか、LIAR!を宣言！";else refreshHandSelection();
@@ -459,7 +460,7 @@ $("rematch").addEventListener("click",()=>action(async()=>{
 $("playCards").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_play",{p_room:room,p_indices:[...selected]});if(r.error)throw r.error;selected.clear();await refreshGame()}));
 $("acceptCards").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_accept",{p_room:room});if(r.error)throw r.error;await refreshGame()}));
 $("challengeCards").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_challenge",{p_room:room});if(r.error)throw r.error;await refreshGame()}));
-async function pullTrigger(){if(!gunReady)throw Error("銃口が向くまで待ってください");if(busy)return;busy=true;const shooter=user.id;try{const r=await Promise.race([db.rpc("night_game_trigger",{p_room:room}),new Promise((_,reject)=>setTimeout(()=>reject(Error("通信がタイムアウトしました。再度お試しください")),12000))]);if(r.error)throw r.error;resultSequenceActive=true;fxResult(r.data,null,shooter);try{await refreshGame()}catch(e){note("⚠ 判定は完了しました。画面更新に失敗: "+e.message)}return r.data}finally{busy=false}}
+async function pullTrigger(){if(busy)return;busy=true;const shooter=user.id;try{const r=await Promise.race([db.rpc("night_game_trigger",{p_room:room}),new Promise((_,reject)=>setTimeout(()=>reject(Error("通信がタイムアウトしました。再度お試しください")),12000))]);if(r.error)throw r.error;resultSequenceActive=true;fxResult(r.data,null,shooter);try{await refreshGame()}catch(e){note("⚠ 判定は完了しました。画面更新に失敗: "+e.message)}return r.data}finally{busy=false}}
 $("trigger").addEventListener("click",()=>pullTrigger().catch(error));
 async function leave(){if(!room)return;const r=await db.rpc("night_leave_room",{p_room:room});if(r.error)throw r.error;stop();room=null;show("entry")}
 $("leave").addEventListener("click",()=>action(leave));$("leavePlaying").addEventListener("click",()=>action(leave));
