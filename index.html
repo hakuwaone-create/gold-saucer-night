@@ -240,9 +240,14 @@ function fxReveal(cards,loser,onComplete=null){
  if(onComplete)setTimeout(()=>{
   if(token!==gunSceneToken||gameData?.phase!=="roulette")return;
   if(gameData?.revenge_actor&&safe.includes("JOKER")){
-   fxShow('<div style="text-align:center;animation:pop .5s ease-out"><div style="font-size:70px">🃏</div><div class="fx-title fx-gold" style="font-size:clamp(44px,12vw,90px);text-shadow:0 0 30px #ff1f76">JOKER!</div><div class="fx-title" style="color:#ff6f9e">逆襲発動！！</div><div class="fx-sub">ジョーカーを出した者以外、全員が運命の引き金へ……</div></div>',3600,900);
+   const actor=gameData.revenge_actor,immune=actor===user.id;
+   const targets=(gameData.players||[]).filter(p=>p.alive&&p.user_id!==actor);
+   const targetHtml=targets.map(p=>'<div style="display:inline-flex;flex-direction:column;align-items:center;gap:4px;margin:5px;min-width:76px">'+avatarHtml(p.user_id,p.name,"sm")+'<span style="color:#ff859b;font-size:12px;font-weight:900">🎯 TARGET</span><small>'+escapeHtml(p.name)+'</small></div>').join('');
+   const actorPlayer=gameData.players?.find(p=>p.user_id===actor);
+   const personal=immune?'<div style="font-size:clamp(24px,7vw,40px);color:#ffe7a0;font-weight:900">👑 逆襲成功！！</div><div class="fx-sub">あなた以外の全員がロシアンルーレットの対象です</div>':'<div style="font-size:clamp(26px,8vw,44px);color:#ff6b88;font-weight:900">⚠️ 死の宣告</div><div class="fx-sub" style="color:#ffe4e9">あなたもロシアンルーレットの対象です！</div>';
+   fxShow('<div style="text-align:center;padding:14px 8px;border:3px solid #d72c78;border-radius:18px;background:radial-gradient(ellipse at center,#63143e 0%,#23091f 70%,#09050b 100%);box-shadow:0 0 50px #b9006688,inset 0 0 35px #ff2e6c44"><div style="font-size:65px">🃏</div><div class="fx-title" style="font-size:clamp(40px,11vw,84px);color:#ffb3d4;text-shadow:0 0 28px #ff007a">JOKER!</div><div class="fx-title" style="color:#ff6f9e">REVENGE ACTIVATED</div>'+personal+'<div class="fx-sub">ジョーカー使用者：'+escapeHtml(actorPlayer?.name||"プレイヤー")+' <span style="color:#ffe59b">👑 対象外</span></div><div style="margin-top:12px">'+targetHtml+'</div></div>',5400,900);
    const jokerToken=gunSceneToken;
-   setTimeout(()=>{if(jokerToken===gunSceneToken&&gameData?.phase==="roulette")onComplete()},3200);
+   setTimeout(()=>{if(jokerToken===gunSceneToken&&gameData?.phase==="roulette")onComplete()},4900);
   }else onComplete();
  },total+120);
 }
@@ -372,8 +377,7 @@ async function refreshGame(){
   const expectedRound=g.round_no,expectedLoser=g.loser;
   if(previousPhase!=="roulette"&&g.reveal){
    rouletteFxRoundKey=room+":"+g.round_no;
-   if(g.revenge_actor)fxShow('<div class="fx-title fx-gold">🃏 JOKER’S REVENGE!</div><div class="fx-sub">ジョーカーが運命を覆す！ 生存者全員がルーレットへ！</div>',2500,340);
-   setTimeout(()=>{if(gameData?.phase==="roulette"&&gameData.round_no===expectedRound&&gameData.loser===expectedLoser)fxReveal(g.reveal,g.players.find(p=>p.user_id===g.loser)?.name||"不明",()=>showGunScene(gameData))},g.revenge_actor?2600:0);
+   setTimeout(()=>{if(gameData?.phase==="roulette"&&gameData.round_no===expectedRound&&gameData.loser===expectedLoser)fxReveal(g.reveal,g.players.find(p=>p.user_id===g.loser)?.name||"不明",()=>showGunScene(gameData))},0);
   }else showGunScene(g);
  }
  const playKey=room+":"+g.round_no+":"+(g.last_play?.user_id||"")+":"+(g.last_play?.count||0)+":"+g.pile_count;
