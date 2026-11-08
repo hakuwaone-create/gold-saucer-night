@@ -97,18 +97,31 @@ button.card.selected{transform:translateY(-15px) rotate(-2deg);box-shadow:0 0 22
 #gunStageText{color:#f4d69b;font-size:14px;font-weight:bold;letter-spacing:.06em;margin-top:10px}
 @keyframes chamber-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.gun-stage-img.spinning::after{animation:none}}
+
+/* v1.9 cinematic fullscreen roulette */
+.fx-gun-scene{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:min(92vw,650px);min-height:65vh}
+.fx-gun-visual{width:min(90vw,600px);height:min(50vh,350px);background:url("assets/revolver-side.webp") center/contain no-repeat;filter:drop-shadow(0 18px 25px #000);transition:transform 1.15s cubic-bezier(.2,.8,.2,1),opacity .5s}
+.fx-gun-visual.spinning{animation:gun-roll 1.8s cubic-bezier(.2,.7,.4,1) both}
+.fx-gun-visual.aimed{background-image:url("assets/revolver-front.webp");height:min(52vh,380px);transform:scale(1.08)}
+.fx-gun-action{padding:16px 35px!important;max-width:380px;font-size:20px!important;box-shadow:0 0 28px #ad243c99}
+.fx-gun-action.hide{display:none}
+.fx-gun-caption{font-size:clamp(15px,3vw,22px);color:#e9cc93;text-align:center;letter-spacing:.1em}
+@keyframes gun-roll{0%{transform:rotate(-22deg) scale(.75);opacity:.2}45%{transform:rotate(12deg) scale(1.08);opacity:1}75%{transform:rotate(-7deg) scale(1)}100%{transform:rotate(0) scale(1)}}
+.fx-card.flipping{animation:slow-reveal-hold 2.65s ease-in-out both!important}
+@keyframes slow-reveal-hold{0%{transform:rotateY(0);filter:brightness(.85)}36%{transform:rotateY(90deg);filter:brightness(.3)}67%{transform:rotateY(90deg);filter:brightness(.3)}100%{transform:rotateY(0);filter:brightness(1)}}
+@media(prefers-reduced-motion:reduce){.fx-gun-visual.spinning,.fx-card.flipping{animation:none!important}}
 </style></head><body><button id="soundToggle" class="fx-sound" type="button">🔇 SOUND OFF</button><div id="fxLayer" class="fx-layer" aria-live="polite"><div id="fxContent"></div><button id="fxSkip" class="alt fx-skip" type="button">演出をスキップ</button></div><main><div class="crest">🎩🃏</div><h1>ゴールドソーサーの夜会</h1><div class="sub">GOLD SAUCER NIGHT · ONLINE</div>
 <div id="message" class="notice hide" role="status"></div>
 <section id="entry" class="panel"><h2>◆ 夜会への招待</h2><label for="name">プレイヤー名</label><input id="name" maxlength="20" placeholder="名前を入力"><button id="create">👑 新しい部屋を作る</button><p class="muted center">── または ──</p><label for="codeInput">6桁のルームコード</label><input id="codeInput" inputmode="numeric" maxlength="6" placeholder="000000"><button id="join" class="alt">🚪 部屋に参加する</button><p class="muted">初回は匿名ログインを使用します。アカウント登録は不要です。</p></section>
 <section id="room" class="panel hide"><h2>◆ 夜会の控室</h2><p class="muted center">ルームコード</p><div id="code" class="code"></div><button id="copy" class="alt">📋 コードをコピー</button><p id="status" class="center"></p><div id="players"></div><div class="row"><button id="ready">✋ 準備完了</button><button id="start" class="alt hide">🎮 ゲーム開始</button></div><button id="leave" class="alt">退出する</button><p class="muted">準備が整ったらホストがゲーム開始。手札とルーレットの判定はサーバーで管理します。</p></section>
 <section id="playing" class="panel hide"><h2>🎰 夜会、開幕！</h2><p id="gameInfo" class="center"></p><div id="gamePlayers"></div><p id="gameTurn" class="center"></p><div id="tablePlay" class="table-play"><div class="table-title">✦ TABLE · 伏せられたカード ✦</div><div id="tablePile" class="table-pile"></div><div id="declaredShow" class="declared-show hide"><div id="declaredArt" class="declared-art"></div><div id="declaredCaption">今回の宣言カード</div></div><div id="tableStatus" class="table-status"></div></div><div id="hand" class="hand"></div><p id="selectionInfo" class="muted center">手札から1〜3枚を選択</p><button id="playCards">🃏 選んだカードを伏せて出す</button><button id="acceptCards" class="alt hide">続行する（信じる）</button><button id="challengeCards" class="danger hide">🟥 LIAR!! 嘘を暴く</button><div id="revealBox" class="reveal hide"></div><div id="gunStage" class="gun-stage hide"><div id="gunStageImg" class="gun-stage-img"></div><div id="gunStageText">シリンダー回転中…</div></div><button id="trigger" class="danger hide">🔫 引き金を引く</button><div id="rouletteMessage" class="reveal hide"></div><p class="muted">LIAR!の判定とリボルバーはサーバーで処理。実弾位置は非公開です。</p><button id="rematch" class="alt hide">🔄 同じメンバーでもう一戦！</button><p id="rematchWait" class="muted center hide">🔄 ホストが「もう一戦！」を押すと、同じメンバーで再戦できます。退出せずにお待ちください。</p><button id="leavePlaying" class="alt">退出する</button></section>
-<p class="muted center">Ver.1.8 · REMATCH FIX</p></main>
+<p class="muted center">Ver.1.9 · CINEMATIC ROULETTE</p></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.10/dist/umd/supabase.min.js"></script>
 <script>
 "use strict";
 const $=id=>document.getElementById(id), PROJECT_URL="https://ngcfidzjvlawtspevdkk.supabase.co",KEY="sb_publishable_V9JLrLMy3FK2TaMdgUXmbQ_Nn4w0B-p";
 const db=window.supabase?.createClient(PROJECT_URL,KEY,{auth:{persistSession:true,autoRefreshToken:true}});
-let gunStageKey="",gunReady=false,gunStageTimer=null,currentHostId=null,lastTableKey="",user=null,room=null,roomCode="",poll=null,busy=false,gamePoll=null,gameData=null,selected=new Set(),lastResult="",lastFxKey="",fxTimer=null,fxBusy=false,soundOn=false,audioCtx=null,fxSoundTimers=[];
+let resultSequenceActive=false,gunSceneToken=0,gunStageKey="",gunReady=false,gunStageTimer=null,currentHostId=null,lastTableKey="",user=null,room=null,roomCode="",poll=null,busy=false,gamePoll=null,gameData=null,selected=new Set(),lastResult="",lastFxKey="",fxTimer=null,fxBusy=false,soundOn=false,audioCtx=null,fxSoundTimers=[];
 
 
 const SFX={
@@ -129,7 +142,7 @@ function beep(freq=440,duration=.15,type="sine",volume=.09){
  try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.setValueAtTime(freq,audioCtx.currentTime);g.gain.setValueAtTime(volume,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+duration);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+duration)}catch(_){}
 }
 $("soundToggle").onclick=()=>{soundOn=!soundOn;$("soundToggle").textContent=soundOn?"🔊 SOUND ON":"🔇 SOUND OFF";if(soundOn)beep(660,.12)};
-function fxClose(){clearSoundTimers();$("fxLayer").classList.remove("fx-flash");clearTimeout(fxTimer);$("fxLayer").classList.remove("active");$("fxContent").replaceChildren();fxBusy=false}
+function fxClose(){gunSceneToken++;clearSoundTimers();$("fxLayer").classList.remove("fx-flash");clearTimeout(fxTimer);$("fxLayer").classList.remove("active");$("fxContent").replaceChildren();fxBusy=false}
 $("fxSkip").onclick=fxClose;
 function fxShow(html,duration=2200,tone=0){fxBusy=true;$("fxContent").innerHTML=html;$("fxLayer").classList.add("active");if(tone)beep(tone,.25,"sawtooth",.07);clearTimeout(fxTimer);fxTimer=setTimeout(fxClose,duration)}
 
@@ -147,52 +160,52 @@ function decorateCard(el,rank){
 }
 function revolverMarkup(extra=""){return '<div class="revolver photo '+extra+'" role="img" aria-label="銀色のリボルバー"></div>'}
 
-function fxReveal(cards,loser){
+function fxReveal(cards,loser,onComplete=null){
  const safe=Array.isArray(cards)?cards:[];
- const total=1700+safe.length*1650+1900;
- fxShow('<div class="fx-title">LIAR!!</div><div class="fx-sub">1枚ずつ、真実を暴く…</div><div class="fx-cardrow" id="fxCards"></div><div class="fx-sub">敗者：'+escapeHtml(loser)+'</div>',total,180);
- const row=$("fxCards");
+ const step=3200,first=1000,total=first+safe.length*step+900;
+ fxShow('<div class="fx-title">LIAR!!</div><div class="fx-sub">裏か表か……運命の公開</div><div class="fx-cardrow" id="fxCards"></div><div class="fx-sub">敗者：'+escapeHtml(loser)+'</div>',total,180);
+ const row=$("fxCards"),token=gunSceneToken;
  safe.forEach((card,i)=>{
   const el=document.createElement("div");el.className="fx-card back";el.setAttribute("aria-label","伏せられたカード");row.append(el);
-  const delay=1300+i*1650;
-  setTimeout(()=>{if(!el.isConnected)return;el.classList.add("flipping");beep(320+i*70,.2)},delay);
-  setTimeout(()=>{if(!el.isConnected)return;el.classList.remove("back");decorateCard(el,card);el.setAttribute("aria-label","公開カード "+card);beep(570+i*80,.2)},delay+680);
+  const delay=first+i*step;
+  setTimeout(()=>{if(token!==gunSceneToken||!el.isConnected)return;el.classList.add("flipping");beep(330+i*65,.2)},delay);
+  setTimeout(()=>{if(token!==gunSceneToken||!el.isConnected)return;el.classList.remove("back");decorateCard(el,card);el.setAttribute("aria-label","公開カード "+card);beep(620+i*70,.25)},delay+1770);
  });
+ if(onComplete)setTimeout(()=>{if(token===gunSceneToken&&gameData?.phase==="roulette")onComplete()},total+120);
 }
 function escapeHtml(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function fxResult(result){
+function showGunScene(g){
+ if(g.phase!=="roulette")return;
+ gunSceneToken++;const token=gunSceneToken;
+ gunReady=false;
+ fxShow('<div class="fx-gun-scene"><div class="fx-title fx-gold">ROULETTE</div><div id="fxGun" class="fx-gun-visual spinning"></div><div id="fxGunCaption" class="fx-gun-caption">シリンダーが回る……</div><button id="fxGunTrigger" class="danger fx-gun-action hide" type="button">🔫 引き金を引く</button></div>',120000);
+ playSfx("spin");
+ setTimeout(()=>{if(token!==gunSceneToken)return;const gun=$("fxGun");if(gun){gun.classList.remove("spinning");gun.classList.add("aimed")}const label=$("fxGunCaption");if(label)label.textContent="銃口がこちらを向いた……";playSfx("cock")},2250);
+ setTimeout(()=>{if(token!==gunSceneToken)return;gunReady=true;const own=g.loser===user.id;const btn=$("fxGunTrigger");if(btn&&own){btn.classList.remove("hide");btn.onclick=()=>{if(!gunReady||busy)return;btn.disabled=true;$("trigger").click()}}const label=$("fxGunCaption");if(label)label.textContent=own?"覚悟はいいか？ 引き金を引け！":"敗者が引き金を引くのを待っています……"},3450);
+}
+function fxResult(result,winnerName=null){
  const bang=result==="BANG";
- clearSoundTimers();
- fxShow(revolverMarkup("front")+'<div class="fx-title fx-gold" id="shotTitle">引き金を引く…</div><div class="fx-sub" id="shotSub">運命の一瞬</div>',3900,0);
- soundLater("cock",350);
- soundLater(bang?"bang":"dry",1250);
+ resultSequenceActive=true;
+ fxShow('<div class="fx-gun-scene"><div class="fx-title fx-gold">FATE</div><div class="fx-gun-visual aimed" id="fxShotGun"></div><div class="fx-title fx-gold" id="shotTitle">引き金が動く……</div><div class="fx-gun-caption" id="shotSub">……</div></div>',winnerName?7200:4200,0);
+ const token=gunSceneToken;
+ soundLater(bang?"bang":"dry",1150);
  setTimeout(()=>{
-  const title=$("shotTitle"),sub=$("shotSub"),gun=$("fxLayer").querySelector(".revolver.photo");
+  if(token!==gunSceneToken)return;
+  const title=$("shotTitle"),sub=$("shotSub"),gun=$("fxShotGun");
   if(!title||!sub)return;
-  title.textContent=bang?"BANG!!":"CLICK…";
+  title.textContent=bang?"BANG!!":"CLICK……";
   title.classList.toggle("fx-gold",!bang);
-  sub.textContent=bang?"💀 脱落":"生存！ 次の夜会へ";
-  if(gun&&bang)gun.classList.add("fire");
+  sub.textContent=bang?"💀 脱落":"生存！";
+  if(gun&&bang)gun.style.transform="scale(1.32)";
   if(bang)$("fxLayer").classList.add("fx-flash");
- },1250);
- setTimeout(()=>$("fxLayer").classList.remove("fx-flash"),1850);
+ },1150);
+ setTimeout(()=>{if(token===gunSceneToken)$("fxLayer").classList.remove("fx-flash")},1850);
+ setTimeout(()=>{if(token!==gunSceneToken)return;resultSequenceActive=false;if(winnerName)fxWin(winnerName)},winnerName?3400:4000);
 }
 function updateGunStage(g){
- const stage=$("gunStage"),img=$("gunStageImg"),label=$("gunStageText");
- if(g.phase!=="roulette"){stage.classList.add("hide");gunReady=false;gunStageKey="";clearTimeout(gunStageTimer);return}
- stage.classList.remove("hide");
- const key=room+":"+g.round_no+":"+g.loser;
- if(gunStageKey===key)return;
- gunStageKey=key;gunReady=false;clearTimeout(gunStageTimer);
- img.className="gun-stage-img spinning";label.textContent="シリンダー回転中…";
- playSfx("spin");
- gunStageTimer=setTimeout(()=>{
-  if(gunStageKey!==key)return;
-  img.className="gun-stage-img aimed";
-  label.textContent=g.loser===user.id?"銃口がこちらを向いた。引き金を引け！":"銃口が向いた… 敗者の引き金を待っています";
-  gunReady=true;playSfx("cock");
-  $("trigger").disabled=g.loser!==user.id;
- },2100);
+ $("gunStage").classList.add("hide");
+ if(g.phase!=="roulette"){gunReady=false;return}
+ $("trigger").disabled=g.loser!==user.id||!gunReady||busy;
 }
 function fxWin(name){fxShow('<div class="fx-confetti">✨ 👑 ✨</div><div class="fx-title fx-gold">WINNER</div><div class="fx-sub">'+escapeHtml(name)+'</div><div class="fx-confetti">🎊 ✨ 🎊</div>',5000,880)}
 
@@ -215,7 +228,14 @@ async function refreshGame(){
  gameData=v.data;const g=v.data;
  if(!g.initialized){$("gameInfo").textContent="カードを配っています…";return}
  const phaseKey=room+":"+g.round_no+":"+g.phase+":"+(g.last_play?.user_id||"")+":"+(g.last_play?.count||0)+":"+(g.winner||"");
- if(phaseKey!==lastFxKey){lastFxKey=phaseKey;if(g.roulette_result&&g.phase==="play"&&g.round_no>1){fxResult(g.roulette_result)}else if(g.phase==="roulette"&&g.reveal){fxReveal(g.reveal,g.players.find(p=>p.user_id===g.loser)?.name||"不明")}else if(g.phase==="finished"){fxWin(g.players.find(p=>p.user_id===g.winner)?.name||"勝者")}}
+ if(phaseKey!==lastFxKey){lastFxKey=phaseKey;
+ if(!resultSequenceActive){
+  if(g.phase==="roulette"&&g.reveal){fxReveal(g.reveal,g.players.find(p=>p.user_id===g.loser)?.name||"不明",()=>showGunScene(g))}
+  else if(g.phase==="finished"&&g.roulette_result){fxResult(g.roulette_result,g.players.find(p=>p.user_id===g.winner)?.name||"勝者")}
+  else if(g.roulette_result&&g.phase==="play"&&g.round_no>1){fxResult(g.roulette_result)}
+  else if(g.phase==="finished"){fxWin(g.players.find(p=>p.user_id===g.winner)?.name||"勝者")}
+ }
+}
  const playKey=room+":"+g.round_no+":"+(g.last_play?.user_id||"")+":"+(g.last_play?.count||0)+":"+g.pile_count;
  const table=$("tablePile");table.replaceChildren();
  const pileCount=Math.max(0,Number(g.pile_count)||0);
@@ -248,7 +268,7 @@ async function refreshGame(){
  if(g.phase==="challenge")$("selectionInfo").textContent="信じて続行するか、LIAR!を宣言！";else refreshHandSelection();
 }
 function refreshHandSelection(){const cards=$("hand").children;for(let i=0;i<cards.length;i++)cards[i].classList.toggle("selected",selected.has(i));$("selectionInfo").textContent=selected.size+"枚選択中（最大3枚）";$("playCards").disabled=!gameData||gameData.turn_user!==user.id||selected.size===0}
-$("rematch").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_rematch",{p_room:room});if(r.error)throw r.error;fxClose();gunStageKey="";gunReady=false;clearTimeout(gunStageTimer);$("rouletteMessage").classList.add("hide");selected.clear();lastFxKey="";lastTableKey="";await refreshGame()}));
+$("rematch").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_rematch",{p_room:room});if(r.error)throw r.error;fxClose();resultSequenceActive=false;gunStageKey="";gunReady=false;clearTimeout(gunStageTimer);$("rouletteMessage").classList.add("hide");selected.clear();lastFxKey="";lastTableKey="";await refreshGame()}));
 $("playCards").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_play",{p_room:room,p_indices:[...selected]});if(r.error)throw r.error;selected.clear();await refreshGame()}));
 $("acceptCards").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_accept",{p_room:room});if(r.error)throw r.error;await refreshGame()}));
 $("challengeCards").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_challenge",{p_room:room});if(r.error)throw r.error;await refreshGame()}));
