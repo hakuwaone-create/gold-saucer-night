@@ -117,12 +117,24 @@ button.card.selected{transform:translateY(-15px) rotate(-2deg);box-shadow:0 0 22
 .declared-mini-card{width:52px;height:73px;background-size:contain;background-position:center;background-repeat:no-repeat;filter:drop-shadow(0 2px 5px #000)}
 .declared-mini-rank{font-size:12px;font-weight:900;color:#ffe0a3}
 @media(max-width:740px){.declared-mini{top:64px;left:8px;padding:5px 6px}.declared-mini-card{width:38px;height:54px}.declared-mini-label{font-size:9px}.declared-mini-rank{font-size:10px}}
+
+/* Friend playtest polish */
+.playtest-status{display:flex;align-items:center;justify-content:center;gap:8px;margin:10px 0 15px;padding:10px 12px;border:1px solid #806239;border-radius:10px;background:#120d16;color:#f5d899;font-size:13px;font-weight:750;text-align:center}
+.playtest-status.my-turn{border-color:#f2c36b;background:#3a261d;box-shadow:0 0 18px #c58b3155;animation:turn-glow 2s ease-in-out infinite alternate}
+.playtest-status.spectating{color:#c6b9cc;border-color:#65576a;background:#1c1924}
+@keyframes turn-glow{from{box-shadow:0 0 7px #c58b3122}to{box-shadow:0 0 23px #e3ad5477}}
+.gamePlayer.is-current{border-left:3px solid #ffd479;background:#44301c88;font-weight:850;border-radius:5px}
+.gamePlayer.is-out{opacity:.55;text-decoration:line-through}
+#gameTurn{font-weight:750;line-height:1.5}
+#selectionInfo{min-height:20px}
+#hand button:focus-visible,button:focus-visible{outline:3px solid #fff4bb;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.playtest-status.my-turn{animation:none}}
 </style></head><body><button id="soundToggle" class="fx-sound" type="button">🔇 SOUND OFF</button><div id="fxLayer" class="fx-layer" aria-live="polite"><div id="fxContent"></div><button id="fxSkip" class="alt fx-skip" type="button">演出をスキップ</button></div><main><div class="crest">🎩🃏</div><h1>ゴールドソーサーの夜会</h1><div class="sub">GOLD SAUCER NIGHT · ONLINE</div>
 <div id="message" class="notice hide" role="status"></div>
 <section id="entry" class="panel"><h2>◆ 夜会への招待</h2><label for="name">プレイヤー名</label><input id="name" maxlength="20" placeholder="名前を入力"><button id="create">👑 新しい部屋を作る</button><p class="muted center">── または ──</p><label for="codeInput">6桁のルームコード</label><input id="codeInput" inputmode="numeric" maxlength="6" placeholder="000000"><button id="join" class="alt">🚪 部屋に参加する</button><p class="muted">初回は匿名ログインを使用します。アカウント登録は不要です。</p></section>
 <section id="room" class="panel hide"><h2>◆ 夜会の控室</h2><p class="muted center">ルームコード</p><div id="code" class="code"></div><button id="copy" class="alt">📋 コードをコピー</button><p id="status" class="center"></p><div id="players"></div><div class="row"><button id="ready">✋ 準備完了</button><button id="start" class="alt hide">🎮 ゲーム開始</button></div><button id="leave" class="alt">退出する</button><p class="muted">準備が整ったらホストがゲーム開始。手札とルーレットの判定はサーバーで管理します。</p></section>
-<aside id="declaredMini" class="declared-mini hide" aria-label="現在の宣言カード"><div class="declared-mini-label">宣言カード</div><div id="declaredMiniArt" class="declared-mini-card"></div><div id="declaredMiniRank" class="declared-mini-rank">Q</div></aside><section id="playing" class="panel hide"><h2>🎰 夜会、開幕！</h2><p id="gameInfo" class="center"></p><div id="gamePlayers"></div><p id="gameTurn" class="center"></p><div id="tablePlay" class="table-play"><div class="table-title">✦ TABLE · 伏せられたカード ✦</div><div id="tablePile" class="table-pile"></div><div id="declaredShow" class="declared-show hide"><div id="declaredArt" class="declared-art"></div><div id="declaredCaption">今回の宣言カード</div></div><div id="tableStatus" class="table-status"></div></div><div id="hand" class="hand"></div><p id="selectionInfo" class="muted center">手札から1〜3枚を選択</p><button id="playCards">🃏 選んだカードを伏せて出す</button><button id="acceptCards" class="alt hide">続行する（信じる）</button><button id="challengeCards" class="danger hide">🟥 LIAR!! 嘘を暴く</button><div id="revealBox" class="reveal hide"></div><div id="gunStage" class="gun-stage hide"><div id="gunStageImg" class="gun-stage-img"></div><div id="gunStageText">シリンダー回転中…</div></div><button id="trigger" class="danger hide">🔫 引き金を引く</button><div id="rouletteMessage" class="reveal hide"></div><p class="muted">LIAR!の判定とリボルバーはサーバーで処理。実弾位置は非公開です。</p><button id="rematch" class="alt hide">🔄 同じメンバーでもう一戦！</button><p id="rematchWait" class="muted center hide">🔄 ホストが「もう一戦！」を押すと、同じメンバーで再戦できます。退出せずにお待ちください。</p><button id="leavePlaying" class="alt">退出する</button></section>
-<p class="muted center">Ver.2.4 · LIAR SOUND</p></main>
+<aside id="declaredMini" class="declared-mini hide" aria-label="現在の宣言カード"><div class="declared-mini-label">宣言カード</div><div id="declaredMiniArt" class="declared-mini-card"></div><div id="declaredMiniRank" class="declared-mini-rank">Q</div></aside><section id="playing" class="panel hide"><h2>🎰 夜会、開幕！</h2><p id="gameInfo" class="center"></p><div id="gamePlayers"></div><p id="gameTurn" class="center"></p><div id="playtestStatus" class="playtest-status" role="status" aria-live="polite">ゲームを準備中…</div><div id="tablePlay" class="table-play"><div class="table-title">✦ TABLE · 伏せられたカード ✦</div><div id="tablePile" class="table-pile"></div><div id="declaredShow" class="declared-show hide"><div id="declaredArt" class="declared-art"></div><div id="declaredCaption">今回の宣言カード</div></div><div id="tableStatus" class="table-status"></div></div><div id="hand" class="hand"></div><p id="selectionInfo" class="muted center">手札から1〜3枚を選択</p><button id="playCards">🃏 選んだカードを伏せて出す</button><button id="acceptCards" class="alt hide">続行する（信じる）</button><button id="challengeCards" class="danger hide">🟥 LIAR!! 嘘を暴く</button><div id="revealBox" class="reveal hide"></div><div id="gunStage" class="gun-stage hide"><div id="gunStageImg" class="gun-stage-img"></div><div id="gunStageText">シリンダー回転中…</div></div><button id="trigger" class="danger hide">🔫 引き金を引く</button><div id="rouletteMessage" class="reveal hide"></div><p class="muted">LIAR!の判定とリボルバーはサーバーで処理。実弾位置は非公開です。</p><button id="rematch" class="alt hide">🔄 同じメンバーでもう一戦！</button><p id="rematchWait" class="muted center hide">🔄 ホストが「もう一戦！」を押すと、同じメンバーで再戦できます。退出せずにお待ちください。</p><button id="leavePlaying" class="alt">退出する</button></section>
+<p class="muted center">Ver.2.5 · FRIEND PLAYTEST</p></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.10/dist/umd/supabase.min.js"></script>
 <script>
 "use strict";
@@ -273,6 +285,7 @@ async function refreshGame(){
  const declaredRank=String(g.declared||"Q").toUpperCase();$("declaredMiniArt").style.backgroundImage='url("assets/card-'+declaredRank.toLowerCase()+'.webp")';$("declaredMiniRank").textContent=declaredRank;
  const phaseKey=room+":"+g.round_no+":"+g.phase+":"+(g.last_play?.user_id||"")+":"+(g.last_play?.count||0)+":"+(g.winner||"");
  if(rematchPending&&g.phase!=="finished"){rematchPending=false;fxClose();resultSequenceActive=false;selected.clear();}
+ if(g.phase!=="play"&&g.phase!=="challenge")selected.clear();
  if(phaseKey!==lastFxKey){lastFxKey=phaseKey;
  if(!resultSequenceActive){
   if(g.phase==="roulette"&&g.reveal){rouletteFxRoundKey=room+":"+g.round_no;fxReveal(g.reveal,g.players.find(p=>p.user_id===g.loser)?.name||"不明",()=>showGunScene(g))}
@@ -297,9 +310,15 @@ async function refreshGame(){
  $("rematch").textContent="🔄 同じメンバーでもう一戦！";
  $("rematchWait").classList.toggle("hide",g.phase!=="finished"||canRematch);
  const mine=g.turn_user===user.id;
+ const myPlayer=g.players.find(p=>p.user_id===user.id),spectating=myPlayer?.alive===false;
+ const currentPlayer=g.players.find(p=>p.user_id===g.turn_user);
+ const statusEl=$("playtestStatus");
+ statusEl.className="playtest-status"+(spectating?" spectating":mine&&g.phase!=="finished"?" my-turn":"");
+ statusEl.textContent=g.phase==="finished"?"🏆 決着！ 再戦を待っています":spectating?"👻 観戦中 · 残り "+g.players.filter(p=>p.alive).length+"人":g.phase==="roulette"?"🔫 ロシアンルーレット判定中":mine?"✨ あなたの手番！": "⏳ "+(currentPlayer?.name||"ほかのプレイヤー")+" の手番";
+
  $("gameInfo").textContent="宣言ランク："+g.declared+"　｜　場のカード："+g.pile_count+"枚";
  const players=$("gamePlayers");players.replaceChildren();
- for(const p of g.players){const d=document.createElement("div");d.className="gamePlayer";d.textContent=(p.user_id===g.turn_user?"▶ ":"")+(p.user_id===user.id?"あなた / ":"")+p.name+"　"+(p.alive?"手札 "+p.count+"枚 / 危険度 "+(p.shots+1)+"/6":"💀 脱落");players.append(d)}
+ for(const p of g.players){const d=document.createElement("div");d.className="gamePlayer"+(p.user_id===g.turn_user&&g.phase!=="finished"?" is-current":"")+(p.alive?"":" is-out");d.textContent=(p.user_id===g.turn_user?"▶ ":"")+(p.user_id===user.id?"あなた / ":"")+p.name+"　"+(p.alive?"手札 "+p.count+"枚 / 危険度 "+(p.shots+1)+"/6":"💀 脱落");players.append(d)}
  $("gameTurn").textContent=g.phase==="finished"?"🏆 勝者："+(g.players.find(p=>p.user_id===g.winner)?.name||"不明"):g.phase==="roulette"?"🔫 敗者が引き金を引く番です":mine?(g.phase==="challenge"?"信じる？ それともLIAR!？":"あなたの番です"):"ほかのプレイヤーの操作を待っています";
  const hand=$("hand");hand.replaceChildren();
  (g.hand||[]).forEach((c,i)=>{const b=document.createElement("button");b.className="card"+(selected.has(i)?" selected":"");decorateCard(b,c);b.disabled=!mine||g.phase!=="play";b.onclick=()=>{if(selected.has(i))selected.delete(i);else if(selected.size<3)selected.add(i);refreshHandSelection()};hand.append(b)});
@@ -312,7 +331,7 @@ async function refreshGame(){
  if(g.phase==="finished"){$("revealBox").classList.remove("hide");$("revealBox").textContent="🏆 WINNER 🏆　"+(g.players.find(p=>p.user_id===g.winner)?.name||"")};
  if(g.phase==="challenge")$("selectionInfo").textContent="信じて続行するか、LIAR!を宣言！";else refreshHandSelection();
 }
-function refreshHandSelection(){const cards=$("hand").children;for(let i=0;i<cards.length;i++)cards[i].classList.toggle("selected",selected.has(i));$("selectionInfo").textContent=selected.size+"枚選択中（最大3枚）";$("playCards").disabled=!gameData||gameData.turn_user!==user.id||selected.size===0}
+function refreshHandSelection(){const cards=$("hand").children;for(let i=0;i<cards.length;i++)cards[i].classList.toggle("selected",selected.has(i));$("selectionInfo").textContent=selected.size?selected.size+"枚選択中（最大3枚） · タップで解除":"手札から1〜3枚を選択";$("playCards").disabled=!gameData||gameData.turn_user!==user.id||selected.size===0}
 $("rematch").addEventListener("click",()=>action(async()=>{
  if(rematchPending)return;
  rematchPending=true;
