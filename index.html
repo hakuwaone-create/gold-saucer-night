@@ -7,12 +7,49 @@
 .fx-layer{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;flex-direction:column;background:radial-gradient(circle,#30121acc,#060409f5);color:#f8dfaa;text-align:center;padding:22px;pointer-events:none;opacity:0;transition:opacity .28s}
 .fx-layer.active{opacity:1;pointer-events:auto}.fx-title{font-size:clamp(48px,15vw,105px);font-weight:1000;letter-spacing:.08em;color:#f03e55;text-shadow:0 4px 0 #4e0612,0 0 38px #c01d38;animation:fx-zoom .55s cubic-bezier(.2,1.5,.3,1)}.fx-sub{font-size:clamp(15px,4vw,24px);margin:12px auto;color:#f5d8a0}.fx-cardrow{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin:25px 0}.fx-card{width:77px;height:116px;border:3px solid #d5b16b;border-radius:9px;background:linear-gradient(140deg,#f9eac6,#ba9053);color:#261126;font-size:31px;font-weight:900;display:grid;place-items:center;backface-visibility:hidden;animation:fx-flip .9s ease both}.fx-card.back{background:repeating-linear-gradient(45deg,#300d22 0 9px,#6e2637 9px 17px);color:#d8b76e}.fx-gun{font-size:clamp(100px,30vw,190px);filter:drop-shadow(0 0 25px #c2a15b66);animation:fx-zoom .7s ease}.fx-gold{color:#ffda73;text-shadow:0 0 20px #c69a32}.fx-flash{animation:fx-flash .7s ease}.fx-confetti{font-size:60px;animation:fx-zoom .8s ease infinite alternate}.fx-skip{max-width:240px;margin-top:25px;pointer-events:auto}.fx-sound{position:fixed;right:12px;top:10px;z-index:50;width:auto;padding:8px 12px;font-size:12px;background:#332331;color:#f2d9a0}.fx-tiny{font-size:12px;color:#baa784;margin-top:10px}@keyframes fx-zoom{from{transform:scale(.35);opacity:0}to{transform:scale(1);opacity:1}}@keyframes fx-flip{0%{transform:rotateY(90deg);opacity:0}100%{transform:rotateY(0);opacity:1}}@keyframes fx-flash{0%,100%{background:#11070d}25%,60%{background:#d10e2c}}
 @media(prefers-reduced-motion:reduce){.fx-layer,.fx-title,.fx-card,.fx-gun,.fx-confetti,.fx-flash{animation:none!important;transition:none!important}}
+
+/* v1.2: casino table and bespoke playing-card visuals */
+body{background:radial-gradient(ellipse at 50% 15%,#2d1930 0%,#100d17 50%,#050407 100%);background-attachment:fixed}
+main{position:relative}main:before{content:"";position:absolute;inset:-12px 0 auto;height:3px;background:linear-gradient(90deg,transparent,#c49a4c,transparent)}
+.crest{filter:drop-shadow(0 0 12px #cba54b99)}h1{color:#f2d69c;text-shadow:0 1px 0 #fff4,0 4px 14px #000}
+#playing{background:radial-gradient(ellipse at center,#193a32 0%,#10221f 50%,#15101a 100%);border:2px solid #b89455;box-shadow:inset 0 0 0 5px #0005,0 20px 40px #0008;position:relative;overflow:hidden}
+#playing:before{content:"✦  GOLD SAUCER  ✦";display:block;text-align:center;font-size:11px;letter-spacing:.3em;color:#d9bc7e;padding:8px 0;border-bottom:1px solid #aa864a66}
+#gameInfo{padding:13px 8px;border:1px solid #9c793c88;border-radius:8px;background:#0004;color:#f5d9a3;font-weight:700}
+.gamePlayer{background:#090d1180;border:1px solid #b18c4c66;border-radius:7px;margin:6px 0;padding:10px!important}
+.hand{gap:6px!important;padding:15px 0;perspective:900px}
+button.card,.fx-card{position:relative;isolation:isolate;overflow:hidden;border:3px solid #dfbd76!important;background:linear-gradient(130deg,#fff8e7 0%,#f5e7c6 45%,#d8b678 100%)!important;color:#33211e!important;box-shadow:0 3px 0 #7a5630,0 8px 16px #0008,inset 0 0 0 3px #fff5d6!important;font-family:Georgia,"Times New Roman",serif!important;transition:transform .2s,box-shadow .2s}
+button.card{width:clamp(52px,16vw,78px);height:clamp(94px,25vw,118px);font-size:clamp(20px,6vw,29px)}
+button.card:disabled{opacity:.78;cursor:default}
+button.card.selected{transform:translateY(-15px) rotate(-2deg);box-shadow:0 0 22px #ffd26b,0 8px 16px #000a!important}
+.card .corner,.fx-card .corner{position:absolute;top:5px;left:5px;font-size:12px;font-weight:bold;line-height:1.05;text-align:center}
+.card .corner.bottom,.fx-card .corner.bottom{top:auto;left:auto;bottom:5px;right:5px;transform:rotate(180deg)}
+.card .card-center,.fx-card .card-center{font-size:1.5em;line-height:1;text-shadow:0 2px 2px #0002}
+.card[data-rank="Q"] .card-center,.fx-card[data-rank="Q"] .card-center{color:#9d254b}
+.card[data-rank="K"] .card-center,.fx-card[data-rank="K"] .card-center{color:#a67922}
+.card[data-rank="A"] .card-center,.fx-card[data-rank="A"] .card-center{color:#282331}
+.card[data-rank="JOKER"] .card-center,.fx-card[data-rank="JOKER"] .card-center{color:#2a7869}
+.card .card-caption,.fx-card .card-caption{position:absolute;bottom:19px;left:0;right:0;text-align:center;font-size:8px;letter-spacing:.12em;color:#856b48}
+.fx-card{width:83px;height:122px;display:flex;justify-content:center;align-items:center}
+.fx-card.back{background:repeating-linear-gradient(45deg,#320f24 0 9px,#7c3041 9px 18px)!important;color:#d9b46c!important}
+.fx-card.back>*{visibility:hidden}
+.revolver{width:min(75vw,330px);height:200px;position:relative;margin:12px auto;filter:drop-shadow(0 12px 13px #000c)}
+.revolver .barrel{position:absolute;top:61px;left:42%;width:55%;height:31px;border:3px solid #3a3d48;border-radius:6px;background:linear-gradient(#d5d9df,#687481 35%,#c3c7cb 56%,#49535e 90%);box-shadow:inset 0 2px 4px #fff8}
+.revolver .barrel:after{content:"";position:absolute;right:-5px;top:4px;width:6px;height:16px;background:#222831;border-radius:3px}
+.revolver .cylinder{position:absolute;top:41px;left:26%;width:80px;height:77px;border:6px solid #3b414c;border-radius:22px;background:radial-gradient(circle at 45% 45%,#414953 0 12%,#a4abb3 14% 25%,#4c555f 28% 36%,#d5d8db 40% 45%,#6e7783 65%,#343b43 85%);box-shadow:inset 0 0 10px #0008,0 2px 3px #0008}
+.revolver .frame{position:absolute;top:100px;left:17%;width:44%;height:25px;background:linear-gradient(#9fa6af,#3d4551);border:3px solid #343c46;border-radius:12px}
+.revolver .grip{position:absolute;top:112px;left:16%;width:43px;height:81px;border-radius:5px 7px 17px 14px;background:repeating-linear-gradient(125deg,#6a3525 0 5px,#4a241d 6px 9px);transform:rotate(21deg);border:4px solid #27242b}
+.revolver .hammer{position:absolute;top:40px;left:20%;width:38px;height:17px;background:linear-gradient(#c1c8d0,#434b57);border-radius:10px;transform:rotate(-15deg)}
+.revolver .trigger-guard{position:absolute;top:121px;left:37%;width:47px;height:32px;border:5px solid #858c94;border-top:0;border-radius:0 0 24px 24px}
+.revolver.spin .cylinder{animation:drumspin .9s ease-in-out 2}.revolver.fire{animation:recoil .22s ease-out}
+@keyframes drumspin{to{transform:rotate(720deg)}}@keyframes recoil{50%{transform:translateX(-22px) rotate(-8deg)}}
+@media(max-width:420px){.revolver{transform:scale(.85);margin:0 auto}.fx-cardrow{gap:6px}.fx-card{width:70px;height:104px}}
+@media(prefers-reduced-motion:reduce){.revolver.spin .cylinder,.revolver.fire{animation:none!important}}
 </style></head><body><button id="soundToggle" class="fx-sound" type="button">🔇 SOUND OFF</button><div id="fxLayer" class="fx-layer" aria-live="polite"><div id="fxContent"></div><button id="fxSkip" class="alt fx-skip" type="button">演出をスキップ</button></div><main><div class="crest">🎩🃏</div><h1>ゴールドソーサーの夜会</h1><div class="sub">GOLD SAUCER NIGHT · ONLINE</div>
 <div id="message" class="notice hide" role="status"></div>
 <section id="entry" class="panel"><h2>◆ 夜会への招待</h2><label for="name">プレイヤー名</label><input id="name" maxlength="20" placeholder="名前を入力"><button id="create">👑 新しい部屋を作る</button><p class="muted center">── または ──</p><label for="codeInput">6桁のルームコード</label><input id="codeInput" inputmode="numeric" maxlength="6" placeholder="000000"><button id="join" class="alt">🚪 部屋に参加する</button><p class="muted">初回は匿名ログインを使用します。アカウント登録は不要です。</p></section>
-<section id="room" class="panel hide"><h2>◆ 夜会の控室</h2><p class="muted center">ルームコード</p><div id="code" class="code"></div><button id="copy" class="alt">📋 コードをコピー</button><p id="status" class="center"></p><div id="players"></div><div class="row"><button id="ready">✋ 準備完了</button><button id="start" class="alt hide">🎮 ゲーム開始</button></div><button id="leave" class="alt">退出する</button><p class="muted">Ver.0.8はロビー接続テストです。カード対戦は次のバージョンで実装します。</p></section>
+<section id="room" class="panel hide"><h2>◆ 夜会の控室</h2><p class="muted center">ルームコード</p><div id="code" class="code"></div><button id="copy" class="alt">📋 コードをコピー</button><p id="status" class="center"></p><div id="players"></div><div class="row"><button id="ready">✋ 準備完了</button><button id="start" class="alt hide">🎮 ゲーム開始</button></div><button id="leave" class="alt">退出する</button><p class="muted">準備が整ったらホストがゲーム開始。手札とルーレットの判定はサーバーで管理します。</p></section>
 <section id="playing" class="panel hide"><h2>🎰 夜会、開幕！</h2><p id="gameInfo" class="center"></p><div id="gamePlayers"></div><p id="gameTurn" class="center"></p><div id="hand" class="hand"></div><p id="selectionInfo" class="muted center">手札から1〜3枚を選択</p><button id="playCards">🃏 選んだカードを伏せて出す</button><button id="acceptCards" class="alt hide">続行する（信じる）</button><button id="challengeCards" class="danger hide">🟥 LIAR!! 嘘を暴く</button><div id="revealBox" class="reveal hide"></div><button id="trigger" class="danger hide">🔫 引き金を引く</button><div id="rouletteMessage" class="reveal hide"></div><p class="muted">LIAR!の判定とリボルバーはサーバーで処理。実弾位置は非公開です。</p><button id="leavePlaying" class="alt">退出する</button></section>
-<p class="muted center">Ver.1.1 · CINEMATIC FX</p></main>
+<p class="muted center">Ver.1.2 · CASINO VISUALS</p></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.10/dist/umd/supabase.min.js"></script>
 <script>
 "use strict";
@@ -29,9 +66,24 @@ $("soundToggle").onclick=()=>{soundOn=!soundOn;$("soundToggle").textContent=soun
 function fxClose(){clearTimeout(fxTimer);$("fxLayer").classList.remove("active");$("fxContent").replaceChildren();fxBusy=false}
 $("fxSkip").onclick=fxClose;
 function fxShow(html,duration=2200,tone=0){fxBusy=true;$("fxContent").innerHTML=html;$("fxLayer").classList.add("active");if(tone)beep(tone,.25,"sawtooth",.07);clearTimeout(fxTimer);fxTimer=setTimeout(fxClose,duration)}
-function fxReveal(cards,loser){const safe=Array.isArray(cards)?cards:[];fxShow('<div class="fx-title">LIAR!!</div><div class="fx-sub">疑惑のカードを公開…</div><div class="fx-cardrow" id="fxCards"></div><div class="fx-sub">敗者：'+escapeHtml(loser)+'</div>',4200,180);const row=$("fxCards");safe.forEach((card,i)=>{const el=document.createElement("div");el.className="fx-card back";el.textContent="♠";row.append(el);setTimeout(()=>{if(!el.isConnected)return;el.classList.remove("back");el.textContent=card;beep(440+i*130,.13)},850+i*620)})}
+
+function decorateCard(el,rank){
+ el.dataset.rank=rank;
+ const suit=rank==="Q"?"♥":rank==="K"?"♦":rank==="A"?"♠":"✦";
+ const icon=rank==="Q"?"♛":rank==="K"?"♚":rank==="A"?"♠":"🎩";
+ const caption=rank==="JOKER"?"CACTUAR":rank==="Q"?"QUEEN":rank==="K"?"KING":"ACE";
+ el.replaceChildren();
+ const top=document.createElement("span");top.className="corner";top.textContent=rank+" "+suit;
+ const center=document.createElement("span");center.className="card-center";center.textContent=icon;
+ const bottom=document.createElement("span");bottom.className="corner bottom";bottom.textContent=rank+" "+suit;
+ const cap=document.createElement("span");cap.className="card-caption";cap.textContent=caption;
+ el.append(top,center,bottom,cap);
+}
+function revolverMarkup(extra=""){return '<div class="revolver '+extra+'" role="img" aria-label="銀色のリボルバー"><div class="barrel"></div><div class="hammer"></div><div class="cylinder"></div><div class="frame"></div><div class="grip"></div><div class="trigger-guard"></div></div>'}
+
+function fxReveal(cards,loser){const safe=Array.isArray(cards)?cards:[];fxShow('<div class="fx-title">LIAR!!</div><div class="fx-sub">疑惑のカードを公開…</div><div class="fx-cardrow" id="fxCards"></div><div class="fx-sub">敗者：'+escapeHtml(loser)+'</div>',4200,180);const row=$("fxCards");safe.forEach((card,i)=>{const el=document.createElement("div");el.className="fx-card back";el.textContent="♠";row.append(el);setTimeout(()=>{if(!el.isConnected)return;el.classList.remove("back");decorateCard(el,card);beep(440+i*130,.13)},850+i*620)})}
 function escapeHtml(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function fxResult(result){const bang=result==="BANG";fxShow('<div class="fx-gun">🔫</div><div class="fx-title '+(bang?'':'fx-gold')+'">'+(bang?'BANG!!':'CLICK…')+'</div><div class="fx-sub">'+(bang?'💀 脱落':'生存！ 次の夜会へ')+'</div>',bang?3400:2400,bang?80:350);if(bang)$("fxLayer").classList.add("fx-flash");setTimeout(()=>$("fxLayer").classList.remove("fx-flash"),800)}
+function fxResult(result){const bang=result==="BANG";fxShow(revolverMarkup(bang?"fire":"spin")+'<div<div class="fx-title '+(bang?'':'fx-gold')+'">'+(bang?'BANG!!':'CLICK…')+'</div><div class="fx-sub">'+(bang?'💀 脱落':'生存！ 次の夜会へ')+'</div>',bang?3400:2400,bang?80:350);if(bang)$("fxLayer").classList.add("fx-flash");setTimeout(()=>$("fxLayer").classList.remove("fx-flash"),800)}
 function fxWin(name){fxShow('<div class="fx-confetti">✨ 👑 ✨</div><div class="fx-title fx-gold">WINNER</div><div class="fx-sub">'+escapeHtml(name)+'</div><div class="fx-confetti">🎊 ✨ 🎊</div>',5000,880)}
 
 function show(id){for(const s of ["entry","room","playing"])$(s).classList.toggle("hide",s!==id)}
@@ -60,7 +112,7 @@ async function refreshGame(){
  for(const p of g.players){const d=document.createElement("div");d.className="gamePlayer";d.textContent=(p.user_id===g.turn_user?"▶ ":"")+(p.user_id===user.id?"あなた / ":"")+p.name+"　"+(p.alive?"手札 "+p.count+"枚 / 危険度 "+(p.shots+1)+"/6":"💀 脱落");players.append(d)}
  $("gameTurn").textContent=g.phase==="finished"?"🏆 勝者："+(g.players.find(p=>p.user_id===g.winner)?.name||"不明"):g.phase==="roulette"?"🔫 敗者が引き金を引く番です":mine?(g.phase==="challenge"?"信じる？ それともLIAR!？":"あなたの番です"):"ほかのプレイヤーの操作を待っています";
  const hand=$("hand");hand.replaceChildren();
- (g.hand||[]).forEach((c,i)=>{const b=document.createElement("button");b.className="card"+(selected.has(i)?" selected":"");b.textContent=c;b.disabled=!mine||g.phase!=="play";b.onclick=()=>{if(selected.has(i))selected.delete(i);else if(selected.size<3)selected.add(i);refreshHandSelection()};hand.append(b)});
+ (g.hand||[]).forEach((c,i)=>{const b=document.createElement("button");b.className="card"+(selected.has(i)?" selected":"");decorateCard(b,c);b.disabled=!mine||g.phase!=="play";b.onclick=()=>{if(selected.has(i))selected.delete(i);else if(selected.size<3)selected.add(i);refreshHandSelection()};hand.append(b)});
  $("playCards").classList.toggle("hide",g.phase!=="play");$("playCards").disabled=!mine||selected.size===0;
  $("acceptCards").classList.toggle("hide",g.phase!=="challenge");$("acceptCards").disabled=!mine;
  $("challengeCards").classList.toggle("hide",g.phase!=="challenge");$("challengeCards").disabled=!mine;
