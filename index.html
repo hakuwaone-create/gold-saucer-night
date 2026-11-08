@@ -115,13 +115,13 @@ button.card.selected{transform:translateY(-15px) rotate(-2deg);box-shadow:0 0 22
 <section id="entry" class="panel"><h2>◆ 夜会への招待</h2><label for="name">プレイヤー名</label><input id="name" maxlength="20" placeholder="名前を入力"><button id="create">👑 新しい部屋を作る</button><p class="muted center">── または ──</p><label for="codeInput">6桁のルームコード</label><input id="codeInput" inputmode="numeric" maxlength="6" placeholder="000000"><button id="join" class="alt">🚪 部屋に参加する</button><p class="muted">初回は匿名ログインを使用します。アカウント登録は不要です。</p></section>
 <section id="room" class="panel hide"><h2>◆ 夜会の控室</h2><p class="muted center">ルームコード</p><div id="code" class="code"></div><button id="copy" class="alt">📋 コードをコピー</button><p id="status" class="center"></p><div id="players"></div><div class="row"><button id="ready">✋ 準備完了</button><button id="start" class="alt hide">🎮 ゲーム開始</button></div><button id="leave" class="alt">退出する</button><p class="muted">準備が整ったらホストがゲーム開始。手札とルーレットの判定はサーバーで管理します。</p></section>
 <section id="playing" class="panel hide"><h2>🎰 夜会、開幕！</h2><p id="gameInfo" class="center"></p><div id="gamePlayers"></div><p id="gameTurn" class="center"></p><div id="tablePlay" class="table-play"><div class="table-title">✦ TABLE · 伏せられたカード ✦</div><div id="tablePile" class="table-pile"></div><div id="declaredShow" class="declared-show hide"><div id="declaredArt" class="declared-art"></div><div id="declaredCaption">今回の宣言カード</div></div><div id="tableStatus" class="table-status"></div></div><div id="hand" class="hand"></div><p id="selectionInfo" class="muted center">手札から1〜3枚を選択</p><button id="playCards">🃏 選んだカードを伏せて出す</button><button id="acceptCards" class="alt hide">続行する（信じる）</button><button id="challengeCards" class="danger hide">🟥 LIAR!! 嘘を暴く</button><div id="revealBox" class="reveal hide"></div><div id="gunStage" class="gun-stage hide"><div id="gunStageImg" class="gun-stage-img"></div><div id="gunStageText">シリンダー回転中…</div></div><button id="trigger" class="danger hide">🔫 引き金を引く</button><div id="rouletteMessage" class="reveal hide"></div><p class="muted">LIAR!の判定とリボルバーはサーバーで処理。実弾位置は非公開です。</p><button id="rematch" class="alt hide">🔄 同じメンバーでもう一戦！</button><p id="rematchWait" class="muted center hide">🔄 ホストが「もう一戦！」を押すと、同じメンバーで再戦できます。退出せずにお待ちください。</p><button id="leavePlaying" class="alt">退出する</button></section>
-<p class="muted center">Ver.1.9 · CINEMATIC ROULETTE</p></main>
+<p class="muted center">Ver.2.0 · PHASE & REMATCH FIX</p></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.10/dist/umd/supabase.min.js"></script>
 <script>
 "use strict";
 const $=id=>document.getElementById(id), PROJECT_URL="https://ngcfidzjvlawtspevdkk.supabase.co",KEY="sb_publishable_V9JLrLMy3FK2TaMdgUXmbQ_Nn4w0B-p";
 const db=window.supabase?.createClient(PROJECT_URL,KEY,{auth:{persistSession:true,autoRefreshToken:true}});
-let resultSequenceActive=false,gunSceneToken=0,gunStageKey="",gunReady=false,gunStageTimer=null,currentHostId=null,lastTableKey="",user=null,room=null,roomCode="",poll=null,busy=false,gamePoll=null,gameData=null,selected=new Set(),lastResult="",lastFxKey="",fxTimer=null,fxBusy=false,soundOn=false,audioCtx=null,fxSoundTimers=[];
+let resultSequenceActive=false,gunSceneToken=0,rouletteFxRoundKey="",gunStageKey="",gunReady=false,gunStageTimer=null,currentHostId=null,lastTableKey="",user=null,room=null,roomCode="",poll=null,busy=false,gamePoll=null,gameData=null,selected=new Set(),lastResult="",lastFxKey="",fxTimer=null,fxBusy=false,soundOn=false,audioCtx=null,fxSoundTimers=[];
 
 
 const SFX={
@@ -144,7 +144,7 @@ function beep(freq=440,duration=.15,type="sine",volume=.09){
 $("soundToggle").onclick=()=>{soundOn=!soundOn;$("soundToggle").textContent=soundOn?"🔊 SOUND ON":"🔇 SOUND OFF";if(soundOn)beep(660,.12)};
 function fxClose(){gunSceneToken++;clearSoundTimers();$("fxLayer").classList.remove("fx-flash");clearTimeout(fxTimer);$("fxLayer").classList.remove("active");$("fxContent").replaceChildren();fxBusy=false}
 $("fxSkip").onclick=fxClose;
-function fxShow(html,duration=2200,tone=0){fxBusy=true;$("fxContent").innerHTML=html;$("fxLayer").classList.add("active");if(tone)beep(tone,.25,"sawtooth",.07);clearTimeout(fxTimer);fxTimer=setTimeout(fxClose,duration)}
+function fxShow(html,duration=2200,tone=0){gunSceneToken++;fxBusy=true;$("fxContent").innerHTML=html;$("fxLayer").classList.add("active");if(tone)beep(tone,.25,"sawtooth",.07);clearTimeout(fxTimer);fxTimer=setTimeout(fxClose,duration)}
 
 function decorateCard(el,rank){
  el.dataset.rank=rank;
@@ -176,9 +176,9 @@ function fxReveal(cards,loser,onComplete=null){
 function escapeHtml(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function showGunScene(g){
  if(g.phase!=="roulette")return;
- gunSceneToken++;const token=gunSceneToken;
- gunReady=false;
+ gunSceneToken++;gunReady=false;
  fxShow('<div class="fx-gun-scene"><div class="fx-title fx-gold">ROULETTE</div><div id="fxGun" class="fx-gun-visual spinning"></div><div id="fxGunCaption" class="fx-gun-caption">シリンダーが回る……</div><button id="fxGunTrigger" class="danger fx-gun-action hide" type="button">🔫 引き金を引く</button></div>',120000);
+ const token=gunSceneToken;
  playSfx("spin");
  setTimeout(()=>{if(token!==gunSceneToken)return;const gun=$("fxGun");if(gun){gun.classList.remove("spinning");gun.classList.add("aimed")}const label=$("fxGunCaption");if(label)label.textContent="銃口がこちらを向いた……";playSfx("cock")},2250);
  setTimeout(()=>{if(token!==gunSceneToken)return;gunReady=true;const own=g.loser===user.id;const btn=$("fxGunTrigger");if(btn&&own){btn.classList.remove("hide");btn.onclick=()=>{if(!gunReady||busy)return;btn.disabled=true;$("trigger").click()}}const label=$("fxGunCaption");if(label)label.textContent=own?"覚悟はいいか？ 引き金を引け！":"敗者が引き金を引くのを待っています……"},3450);
@@ -230,9 +230,9 @@ async function refreshGame(){
  const phaseKey=room+":"+g.round_no+":"+g.phase+":"+(g.last_play?.user_id||"")+":"+(g.last_play?.count||0)+":"+(g.winner||"");
  if(phaseKey!==lastFxKey){lastFxKey=phaseKey;
  if(!resultSequenceActive){
-  if(g.phase==="roulette"&&g.reveal){fxReveal(g.reveal,g.players.find(p=>p.user_id===g.loser)?.name||"不明",()=>showGunScene(g))}
+  if(g.phase==="roulette"&&g.reveal){rouletteFxRoundKey=room+":"+g.round_no;fxReveal(g.reveal,g.players.find(p=>p.user_id===g.loser)?.name||"不明",()=>showGunScene(g))}
   else if(g.phase==="finished"&&g.roulette_result){fxResult(g.roulette_result,g.players.find(p=>p.user_id===g.winner)?.name||"勝者")}
-  else if(g.roulette_result&&g.phase==="play"&&g.round_no>1){fxResult(g.roulette_result)}
+  else if(g.roulette_result&&g.phase==="play"&&g.round_no>1&&rouletteFxRoundKey===room+":"+(g.round_no-1)){rouletteFxRoundKey="";fxResult(g.roulette_result)}
   else if(g.phase==="finished"){fxWin(g.players.find(p=>p.user_id===g.winner)?.name||"勝者")}
  }
 }
@@ -248,7 +248,7 @@ async function refreshGame(){
  lastTableKey=playKey;
  const canRematch=g.phase==="finished"&&currentHostId===user.id;
  $("rematch").classList.toggle("hide",!canRematch);
- $("rematch").disabled=!canRematch||busy;
+ $("rematch").disabled=!canRematch;
  $("rematch").textContent="🔄 同じメンバーでもう一戦！";
  $("rematchWait").classList.toggle("hide",g.phase!=="finished"||canRematch);
  const mine=g.turn_user===user.id;
@@ -268,7 +268,7 @@ async function refreshGame(){
  if(g.phase==="challenge")$("selectionInfo").textContent="信じて続行するか、LIAR!を宣言！";else refreshHandSelection();
 }
 function refreshHandSelection(){const cards=$("hand").children;for(let i=0;i<cards.length;i++)cards[i].classList.toggle("selected",selected.has(i));$("selectionInfo").textContent=selected.size+"枚選択中（最大3枚）";$("playCards").disabled=!gameData||gameData.turn_user!==user.id||selected.size===0}
-$("rematch").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_rematch",{p_room:room});if(r.error)throw r.error;fxClose();resultSequenceActive=false;gunStageKey="";gunReady=false;clearTimeout(gunStageTimer);$("rouletteMessage").classList.add("hide");selected.clear();lastFxKey="";lastTableKey="";await refreshGame()}));
+$("rematch").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_rematch",{p_room:room});if(r.error)throw r.error;fxClose();resultSequenceActive=false;rouletteFxRoundKey="";gunStageKey="";gunReady=false;clearTimeout(gunStageTimer);$("rouletteMessage").classList.add("hide");selected.clear();lastFxKey="";lastTableKey="";await refreshGame()}));
 $("playCards").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_play",{p_room:room,p_indices:[...selected]});if(r.error)throw r.error;selected.clear();await refreshGame()}));
 $("acceptCards").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_accept",{p_room:room});if(r.error)throw r.error;await refreshGame()}));
 $("challengeCards").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_challenge",{p_room:room});if(r.error)throw r.error;await refreshGame()}));
