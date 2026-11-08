@@ -60,18 +60,38 @@ button.card.selected{transform:translateY(-15px) rotate(-2deg);box-shadow:0 0 22
 .revolver.photo.fire{animation:recoil .25s ease-out}
 @keyframes gun-breathe{50%{transform:scale(1.035) rotate(-1deg)}}
 @media(prefers-reduced-motion:reduce){.revolver.photo.spin,.revolver.photo.front,.revolver.photo.fire{animation:none!important}}
+
+/* v1.5 face-down table play and dramatic card reveal */
+.table-play{margin:16px 0 22px;padding:17px 9px 14px;border:1px solid #b18c4c99;border-radius:14px;background:radial-gradient(ellipse at center,#23534688,#061913aa);text-align:center;box-shadow:inset 0 0 20px #0006}
+.table-title{font-size:12px;color:#e7c98c;letter-spacing:.12em;margin-bottom:8px}
+.table-pile{height:143px;display:flex;justify-content:center;align-items:center;position:relative;overflow:visible}
+.table-card{width:78px;height:114px;border:2px solid #e1b65c;border-radius:8px;background:#1b0e16 url("assets/card-back.webp") center/100% 100% no-repeat;box-shadow:0 7px 12px #0009;position:absolute;transition:transform .4s}
+.table-pile .table-card:nth-child(1){transform:translate(-20px,5px) rotate(-11deg)}
+.table-pile .table-card:nth-child(2){transform:translate(-10px,-1px) rotate(-6deg)}
+.table-pile .table-card:nth-child(3){transform:translate(1px,2px) rotate(2deg)}
+.table-pile .table-card:nth-child(4){transform:translate(12px,-3px) rotate(7deg)}
+.table-pile .table-card:nth-child(5){transform:translate(24px,2px) rotate(12deg)}
+.table-empty{color:#b3a68d;font-size:12px}
+.table-status{color:#f4d8a0;font-size:12px;min-height:20px}
+.table-play.new-play .table-card:last-child{animation:card-deal .65s ease-out both}
+@keyframes card-deal{from{opacity:0;transform:translate(170px,90px) rotate(35deg) scale(1.2)}to{opacity:1}}
+.fx-card{transition:transform .65s ease,filter .65s ease}
+.fx-card.back{animation:none!important}
+.fx-card.flipping{animation:slow-reveal 1.4s ease-in-out both!important}
+@keyframes slow-reveal{0%{transform:rotateY(0deg);filter:brightness(.8)}48%{transform:rotateY(90deg);filter:brightness(.35)}52%{transform:rotateY(90deg);filter:brightness(.35)}100%{transform:rotateY(0deg);filter:brightness(1)}}
+@media(prefers-reduced-motion:reduce){.table-play.new-play .table-card,.fx-card.flipping{animation:none!important}}
 </style></head><body><button id="soundToggle" class="fx-sound" type="button">🔇 SOUND OFF</button><div id="fxLayer" class="fx-layer" aria-live="polite"><div id="fxContent"></div><button id="fxSkip" class="alt fx-skip" type="button">演出をスキップ</button></div><main><div class="crest">🎩🃏</div><h1>ゴールドソーサーの夜会</h1><div class="sub">GOLD SAUCER NIGHT · ONLINE</div>
 <div id="message" class="notice hide" role="status"></div>
 <section id="entry" class="panel"><h2>◆ 夜会への招待</h2><label for="name">プレイヤー名</label><input id="name" maxlength="20" placeholder="名前を入力"><button id="create">👑 新しい部屋を作る</button><p class="muted center">── または ──</p><label for="codeInput">6桁のルームコード</label><input id="codeInput" inputmode="numeric" maxlength="6" placeholder="000000"><button id="join" class="alt">🚪 部屋に参加する</button><p class="muted">初回は匿名ログインを使用します。アカウント登録は不要です。</p></section>
 <section id="room" class="panel hide"><h2>◆ 夜会の控室</h2><p class="muted center">ルームコード</p><div id="code" class="code"></div><button id="copy" class="alt">📋 コードをコピー</button><p id="status" class="center"></p><div id="players"></div><div class="row"><button id="ready">✋ 準備完了</button><button id="start" class="alt hide">🎮 ゲーム開始</button></div><button id="leave" class="alt">退出する</button><p class="muted">準備が整ったらホストがゲーム開始。手札とルーレットの判定はサーバーで管理します。</p></section>
-<section id="playing" class="panel hide"><h2>🎰 夜会、開幕！</h2><p id="gameInfo" class="center"></p><div id="gamePlayers"></div><p id="gameTurn" class="center"></p><div id="hand" class="hand"></div><p id="selectionInfo" class="muted center">手札から1〜3枚を選択</p><button id="playCards">🃏 選んだカードを伏せて出す</button><button id="acceptCards" class="alt hide">続行する（信じる）</button><button id="challengeCards" class="danger hide">🟥 LIAR!! 嘘を暴く</button><div id="revealBox" class="reveal hide"></div><button id="trigger" class="danger hide">🔫 引き金を引く</button><div id="rouletteMessage" class="reveal hide"></div><p class="muted">LIAR!の判定とリボルバーはサーバーで処理。実弾位置は非公開です。</p><button id="leavePlaying" class="alt">退出する</button></section>
-<p class="muted center">Ver.1.4 · ORIGINAL ART</p></main>
+<section id="playing" class="panel hide"><h2>🎰 夜会、開幕！</h2><p id="gameInfo" class="center"></p><div id="gamePlayers"></div><p id="gameTurn" class="center"></p><div id="tablePlay" class="table-play"><div class="table-title">✦ TABLE · 伏せられたカード ✦</div><div id="tablePile" class="table-pile"></div><div id="tableStatus" class="table-status"></div></div><div id="hand" class="hand"></div><p id="selectionInfo" class="muted center">手札から1〜3枚を選択</p><button id="playCards">🃏 選んだカードを伏せて出す</button><button id="acceptCards" class="alt hide">続行する（信じる）</button><button id="challengeCards" class="danger hide">🟥 LIAR!! 嘘を暴く</button><div id="revealBox" class="reveal hide"></div><button id="trigger" class="danger hide">🔫 引き金を引く</button><div id="rouletteMessage" class="reveal hide"></div><p class="muted">LIAR!の判定とリボルバーはサーバーで処理。実弾位置は非公開です。</p><button id="leavePlaying" class="alt">退出する</button></section>
+<p class="muted center">Ver.1.5 · TABLE DRAMA</p></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.10/dist/umd/supabase.min.js"></script>
 <script>
 "use strict";
 const $=id=>document.getElementById(id), PROJECT_URL="https://ngcfidzjvlawtspevdkk.supabase.co",KEY="sb_publishable_V9JLrLMy3FK2TaMdgUXmbQ_Nn4w0B-p";
 const db=window.supabase?.createClient(PROJECT_URL,KEY,{auth:{persistSession:true,autoRefreshToken:true}});
-let user=null,room=null,roomCode="",poll=null,busy=false,gamePoll=null,gameData=null,selected=new Set(),lastResult="",lastFxKey="",fxTimer=null,fxBusy=false,soundOn=false,audioCtx=null,fxSoundTimers=[];
+let lastTableKey="",user=null,room=null,roomCode="",poll=null,busy=false,gamePoll=null,gameData=null,selected=new Set(),lastResult="",lastFxKey="",fxTimer=null,fxBusy=false,soundOn=false,audioCtx=null,fxSoundTimers=[];
 
 
 const SFX={
@@ -110,7 +130,18 @@ function decorateCard(el,rank){
 }
 function revolverMarkup(extra=""){return '<div class="revolver photo '+extra+'" role="img" aria-label="銀色のリボルバー"></div>'}
 
-function fxReveal(cards,loser){const safe=Array.isArray(cards)?cards:[];fxShow('<div class="fx-title">LIAR!!</div><div class="fx-sub">疑惑のカードを公開…</div><div class="fx-cardrow" id="fxCards"></div><div class="fx-sub">敗者：'+escapeHtml(loser)+'</div>',4200,180);const row=$("fxCards");safe.forEach((card,i)=>{const el=document.createElement("div");el.className="fx-card back";el.textContent="♠";row.append(el);setTimeout(()=>{if(!el.isConnected)return;el.classList.remove("back");decorateCard(el,card);beep(440+i*130,.13)},850+i*620)})}
+function fxReveal(cards,loser){
+ const safe=Array.isArray(cards)?cards:[];
+ const total=1700+safe.length*1650+1900;
+ fxShow('<div class="fx-title">LIAR!!</div><div class="fx-sub">1枚ずつ、真実を暴く…</div><div class="fx-cardrow" id="fxCards"></div><div class="fx-sub">敗者：'+escapeHtml(loser)+'</div>',total,180);
+ const row=$("fxCards");
+ safe.forEach((card,i)=>{
+  const el=document.createElement("div");el.className="fx-card back";el.setAttribute("aria-label","伏せられたカード");row.append(el);
+  const delay=1300+i*1650;
+  setTimeout(()=>{if(!el.isConnected)return;el.classList.add("flipping");beep(320+i*70,.2)},delay);
+  setTimeout(()=>{if(!el.isConnected)return;el.classList.remove("back");decorateCard(el,card);el.setAttribute("aria-label","公開カード "+card);beep(570+i*80,.2)},delay+680);
+ });
+}
 function escapeHtml(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function fxResult(result){const bang=result==="BANG";clearSoundTimers();playSfx("spin");soundLater("cock",850);soundLater(bang?"bang":"dry",1450);fxShow(revolverMarkup(bang?"fire":"spin")+'<div class="fx-title '+(bang?'':'fx-gold')+'">'+(bang?'BANG!!':'CLICK…')+'</div><div class="fx-sub">'+(bang?'💀 脱落':'生存！ 次の夜会へ')+'</div>',bang?3400:2400,0);setTimeout(()=>{const gun=$("fxLayer").querySelector(".revolver.photo");if(gun){gun.classList.remove("spin");gun.classList.add("front");if(bang)gun.classList.add("fire")}if(bang)$("fxLayer").classList.add("fx-flash")},1450);setTimeout(()=>$("fxLayer").classList.remove("fx-flash"),2200)}
 function fxWin(name){fxShow('<div class="fx-confetti">✨ 👑 ✨</div><div class="fx-title fx-gold">WINNER</div><div class="fx-sub">'+escapeHtml(name)+'</div><div class="fx-confetti">🎊 ✨ 🎊</div>',5000,880)}
@@ -135,6 +166,15 @@ async function refreshGame(){
  if(!g.initialized){$("gameInfo").textContent="カードを配っています…";return}
  const phaseKey=room+":"+g.round_no+":"+g.phase+":"+(g.last_play?.user_id||"")+":"+(g.last_play?.count||0)+":"+(g.winner||"");
  if(phaseKey!==lastFxKey){lastFxKey=phaseKey;if(g.phase==="roulette"&&g.reveal){fxReveal(g.reveal,g.players.find(p=>p.user_id===g.loser)?.name||"不明")}else if(g.phase==="finished"){fxWin(g.players.find(p=>p.user_id===g.winner)?.name||"勝者")}}
+ const playKey=room+":"+g.round_no+":"+(g.last_play?.user_id||"")+":"+(g.last_play?.count||0)+":"+g.pile_count;
+ const table=$("tablePile");table.replaceChildren();
+ const pileCount=Math.max(0,Number(g.pile_count)||0);
+ if(pileCount===0){const empty=document.createElement("span");empty.className="table-empty";empty.textContent="まだカードは出されていません";table.append(empty)}
+ else{for(let i=0;i<Math.min(5,pileCount);i++){const c=document.createElement("div");c.className="table-card";c.setAttribute("aria-label","裏向きのカード");table.append(c)}}
+ const actor=g.players.find(p=>p.user_id===g.last_play?.user_id);
+ $("tableStatus").textContent=actor&&pileCount>0?actor.name+" が "+g.last_play.count+"枚伏せて出した · 場の合計 "+pileCount+"枚":pileCount>0?"場に "+pileCount+"枚":"カードは裏向きのまま。LIAR!で公開";
+ $("tablePlay").classList.toggle("new-play",Boolean(lastTableKey)&&lastTableKey!==playKey&&pileCount>0);
+ lastTableKey=playKey;
  const mine=g.turn_user===user.id;
  $("gameInfo").textContent="宣言ランク："+g.declared+"　｜　場のカード："+g.pile_count+"枚";
  const players=$("gamePlayers");players.replaceChildren();
