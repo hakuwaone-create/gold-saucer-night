@@ -22,11 +22,30 @@ function nickname(){const n=$("name").value.trim();if(!n||n.length>20)throw Erro
 async function action(fn){if(busy)return;busy=true;note("⏳ ボタンを受け付けました。接続しています…");for(const b of ["create","join","ready","start","leave","leavePlaying"])$(b).disabled=true;try{await Promise.race([(async()=>{await login();await fn()})(),new Promise((_,reject)=>setTimeout(()=>reject(Error("接続が30秒以上応答しません。匿名ログイン設定と通信状況を確認してください")),30000))]);note("")}catch(e){error(e)}finally{busy=false;for(const b of ["create","join","ready","start","leave","leavePlaying"])$(b).disabled=false}}
 function stop(){if(poll){clearInterval(poll);poll=null}if(gamePoll){clearInterval(gamePoll);gamePoll=null}}
 async function refresh(){if(!room)return;const r=await db.from("night_rooms").select("id,code,host_id,status").eq("id",room).maybeSingle();if(r.error)throw r.error;if(!r.data){stop();room=null;show("entry");note("部屋が終了しました");return}const p=await db.from("night_players").select("user_id,display_name,ready,seat").eq("room_id",room).order("seat");if(p.error)throw p.error;const list=p.data||[],me=list.find(x=>x.user_id===user.id);if(!me){stop();room=null;show("entry");note("退出しました");return}roomCode=r.data.code;if(r.data.status==="playing"){show("playing");if(!gamePoll){gamePoll=setInterval(()=>{if(!busy)refreshGame().catch(error)},2200)}await refreshGame();if(poll){clearInterval(poll);poll=null}return}show("room");$("code").textContent=roomCode;$("status").textContent=list.length+" / 4 人参加中";const wrap=$("players");wrap.replaceChildren();for(const x of list){const d=document.createElement("div");d.className="person";const a=document.createElement("span"),b=document.createElement("span");a.textContent=x.seat+" · "+x.display_name+(x.user_id===user.id?"（あなた）":"");b.textContent=(x.user_id===r.data.host_id?"👑 ":"")+(x.ready?"✓ READY":"待機中");d.append(a,b);wrap.append(d)}$("ready").textContent=me.ready?"↩ 準備を取り消す":"✋ 準備完了";$("start").classList.toggle("hide",r.data.host_id!==user.id);$("start").disabled=list.length<2||list.some(x=>!x.ready)}
-async function enter(id){room=id;await refresh();stop();if(room)poll=setInterval(()=>{if(!busy)refresh().catch(error)},2200)}
+async function enter(id){room=id;await refresh();stop();if(room&&!gamePoll)poll=setInterval(()=>{if(!busy)refresh().catch(error)},2200)}
 $("create").addEventListener("click",()=>action(async()=>{const n=nickname(),r=await db.rpc("night_create_room",{p_name:n});if(r.error)throw r.error;const f=await db.from("night_rooms").select("id").eq("code",r.data).single();if(f.error)throw f.error;await enter(f.data.id)}));
 $("join").addEventListener("click",()=>action(async()=>{const n=nickname(),c=$("codeInput").value.trim();if(!/^\d{6}$/.test(c))throw Error("6桁のルームコードを入力してください");const r=await db.rpc("night_join_room",{p_code:c,p_name:n});if(r.error)throw r.error;await enter(r.data)}));
 $("ready").addEventListener("click",()=>action(async()=>{const p=await db.from("night_players").select("ready").eq("room_id",room).eq("user_id",user.id).single();if(p.error)throw p.error;const r=await db.rpc("night_set_ready",{p_room:room,p_ready:!p.data.ready});if(r.error)throw r.error;await refresh()}));
-$("start").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_start_room",{p_room:room});if(r.error)throw r.error;await refresh()}));
+$("start").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_start_room",{p_room:room});if(r.error)throw r.error;const b=await db.rpc("night_game_begin",{p_room:room});if(b.error)throw b.error;await refresh()}));
+async function refreshGame(){
+ if(!room)return;
+ const v=await db.rpc("night_game_view",{p_room:room});if(v.error)throw v.error;
+ gameData=v.data;const g=v.data;
+ if(!g.initialized){$("gameInfo").textContent="カードを配っています…";return}
+ const mine=g.turn_user===user.id;
+ $("gameInfo").textContent="宣言ランク："+g.declared+"　｜　場のカード："+g.pile_count+"枚";
+ const players=$("gamePlayers");players.replaceChildren();
+ for(const p of g.players){const d=document.createElement("div");d.className="gamePlayer";d.textContent=(p.user_id===g.turn_user?"▶ ":"")+(p.user_id===user.id?"あなた / ":"")+p.name+"　手札 "+p.count+"枚";players.append(d)}
+ $("gameTurn").textContent=mine?(g.phase==="challenge"?"相手のカードを受け入れるか選択":"あなたの番です"):"ほかのプレイヤーの操作を待っています";
+ const hand=$("hand");hand.replaceChildren();
+ (g.hand||[]).forEach((c,i)=>{const b=document.createElement("button");b.className="card"+(selected.has(i)?" selected":"");b.textContent=c;b.disabled=!mine||g.phase!=="play";b.onclick=()=>{if(selected.has(i))selected.delete(i);else if(selected.size<3)selected.add(i);refreshHandSelection()};hand.append(b)});
+ $("playCards").classList.toggle("hide",g.phase!=="play");$("playCards").disabled=!mine||selected.size===0;
+ $("acceptCards").classList.toggle("hide",g.phase!=="challenge");$("acceptCards").disabled=!mine;
+ if(g.phase==="challenge")$("selectionInfo").textContent="LIAR!は次の更新で追加予定。現在は続行のみ";else refreshHandSelection();
+}
+function refreshHandSelection(){const cards=$("hand").children;for(let i=0;i<cards.length;i++)cards[i].classList.toggle("selected",selected.has(i));$("selectionInfo").textContent=selected.size+"枚選択中（最大3枚）";$("playCards").disabled=!gameData||gameData.turn_user!==user.id||selected.size===0}
+$("playCards").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_play",{p_room:room,p_indices:[...selected]});if(r.error)throw r.error;selected.clear();await refreshGame()}));
+$("acceptCards").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_accept",{p_room:room});if(r.error)throw r.error;await refreshGame()}));
 async function leave(){if(!room)return;const r=await db.rpc("night_leave_room",{p_room:room});if(r.error)throw r.error;stop();room=null;show("entry")}
 $("leave").addEventListener("click",()=>action(leave));$("leavePlaying").addEventListener("click",()=>action(leave));
 $("copy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(roomCode);note("コードをコピーしました")}catch(e){note("ルームコード: "+roomCode)}});
