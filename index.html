@@ -237,7 +237,14 @@ function fxReveal(cards,loser,onComplete=null){
   setTimeout(()=>{if(token!==gunSceneToken||!el.isConnected)return;el.classList.add("flipping");beep(330+i*65,.2)},delay);
   setTimeout(()=>{if(token!==gunSceneToken||!el.isConnected)return;el.classList.remove("back");decorateCard(el,card);el.setAttribute("aria-label","公開カード "+card);beep(620+i*70,.25)},delay+1770);
  });
- if(onComplete)setTimeout(()=>{if(token===gunSceneToken&&gameData?.phase==="roulette")onComplete()},total+120);
+ if(onComplete)setTimeout(()=>{
+  if(token!==gunSceneToken||gameData?.phase!=="roulette")return;
+  if(gameData?.revenge_actor&&safe.includes("JOKER")){
+   fxShow('<div style="text-align:center;animation:pop .5s ease-out"><div style="font-size:70px">🃏</div><div class="fx-title fx-gold" style="font-size:clamp(44px,12vw,90px);text-shadow:0 0 30px #ff1f76">JOKER!</div><div class="fx-title" style="color:#ff6f9e">逆襲発動！！</div><div class="fx-sub">ジョーカーを出した者以外、全員が運命の引き金へ……</div></div>',3600,900);
+   const jokerToken=gunSceneToken;
+   setTimeout(()=>{if(jokerToken===gunSceneToken&&gameData?.phase==="roulette")onComplete()},3200);
+  }else onComplete();
+ },total+120);
 }
 function escapeHtml(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function showGunScene(g){
@@ -325,10 +332,10 @@ async function refresh(){if(!room)return;const r=await db.from("night_rooms").se
  $("jokerModeText").textContent=r.data.joker_revenge?"🔴 特殊ルール ON":"🟢 通常ルール OFF";
  $("jokerModeToggle").checked=!!r.data.joker_revenge;
  $("jokerModeControl").classList.toggle("hide",r.data.host_id!==user.id);
-if(r.data.status==="playing"||r.data.status==="finished"){show("playing");if(!gamePoll){gamePoll=setInterval(()=>{if(!busy)refreshGame().catch(error)},2200)}await refreshGame();if(poll){clearInterval(poll);poll=null}return}show("room");$("myAvatarPreview").src=me.avatar||avatarFor(user.id,me.display_name);$("code").textContent=roomCode;$("status").textContent=list.length+" / 4 人参加中";const wrap=$("players");wrap.replaceChildren();for(const x of list){const d=document.createElement("div");d.className="person";const a=document.createElement("span"),b=document.createElement("span");a.className="avatar-row";a.append(avatarImg(x.user_id,x.display_name,"sm"),document.createTextNode(x.seat+" · "+x.display_name+(x.user_id===user.id?"（あなた）":"")));if(x.avatar)avatarCache.set(x.user_id,x.avatar);b.textContent=(x.user_id===r.data.host_id?"👑 ":"")+(x.ready?"✓ READY":"待機中");d.append(a,b);wrap.append(d)}$("ready").textContent=me.ready?"↩ 準備を取り消す":"✋ 準備完了";$("start").classList.toggle("hide",r.data.host_id!==user.id);$("start").disabled=list.length<2||list.some(x=>!x.ready)}
+if(r.data.status==="playing"||r.data.status==="finished"){show("playing");if(!gamePoll){gamePoll=setInterval(()=>{if(!busy)refreshGame().catch(error)},2200)}await refreshGame();if(poll){clearInterval(poll);poll=null}return}show("room");$("myAvatarPreview").src=me.avatar||avatarFor(user.id,me.display_name);$("code").textContent=roomCode;$("status").textContent=list.length+" / 4 人参加中"+(me.ready?" · 準備完了後も参加受付中":"");const wrap=$("players");wrap.replaceChildren();for(const x of list){const d=document.createElement("div");d.className="person";const a=document.createElement("span"),b=document.createElement("span");a.className="avatar-row";a.append(avatarImg(x.user_id,x.display_name,"sm"),document.createTextNode(x.seat+" · "+x.display_name+(x.user_id===user.id?"（あなた）":"")));if(x.avatar)avatarCache.set(x.user_id,x.avatar);b.textContent=(x.user_id===r.data.host_id?"👑 ":"")+(x.ready?"✓ READY":"待機中");d.append(a,b);wrap.append(d)}$("ready").textContent=me.ready?"↩ 準備を取り消す":"✋ 準備完了";$("start").classList.toggle("hide",r.data.host_id!==user.id);$("start").disabled=list.length<2||list.some(x=>!x.ready)}
 async function enter(id){room=id;await refresh();stop();if(room&&!gamePoll)poll=setInterval(()=>{if(!busy)refresh().catch(error)},2200)}
 $("create").addEventListener("click",()=>action(async()=>{const n=nickname(),r=await db.rpc("night_create_room",{p_name:n});if(r.error)throw r.error;const f=await db.from("night_rooms").select("id").eq("code",r.data).single();if(f.error)throw f.error;await enter(f.data.id);await applySavedAvatar();await refresh()}));
-$("join").addEventListener("click",()=>action(async()=>{const n=nickname(),c=$("codeInput").value.trim();if(!/^\d{6}$/.test(c))throw Error("6桁のルームコードを入力してください");const r=await db.rpc("night_join_room",{p_code:c,p_name:n});if(r.error)throw r.error;await enter(r.data);await applySavedAvatar();await refresh()}));
+$("join").addEventListener("click",()=>action(async()=>{const n=nickname(),c=$("codeInput").value.trim();if(!/^\d{6}$/.test(c))throw Error("6桁のルームコードを入力してください");const r=await db.rpc("night_join_room",{p_code:c,p_name:n});if(r.error)throw Error("入室できません："+r.error.message);await enter(r.data);await applySavedAvatar();await refresh()}));
 $("ready").addEventListener("click",()=>action(async()=>{const p=await db.from("night_players").select("ready").eq("room_id",room).eq("user_id",user.id).single();if(p.error)throw p.error;const r=await db.rpc("night_set_ready",{p_room:room,p_ready:!p.data.ready});if(r.error)throw r.error;await refresh()}));
 $("start").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_start_room",{p_room:room});if(r.error)throw r.error;const b=await db.rpc("night_game_begin",{p_room:room});if(b.error)throw b.error;await refresh()}));
 async function refreshGame(){
