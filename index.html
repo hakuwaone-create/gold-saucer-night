@@ -176,17 +176,19 @@ function fxReveal(cards,loser,onComplete=null){
 function escapeHtml(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function showGunScene(g){
  if(g.phase!=="roulette")return;
- gunSceneToken++;gunReady=false;
+ gunReady=false;
+ const own=g.loser===user.id;
  fxShow('<div class="fx-gun-scene"><div class="fx-title fx-gold">ROULETTE</div><div id="fxGun" class="fx-gun-visual spinning"></div><div id="fxGunCaption" class="fx-gun-caption">シリンダーが回る……</div><button id="fxGunTrigger" class="danger fx-gun-action hide" type="button">🔫 引き金を引く</button></div>',120000);
  const token=gunSceneToken;
  playSfx("spin");
- setTimeout(()=>{if(token!==gunSceneToken)return;const gun=$("fxGun");if(gun){gun.classList.remove("spinning");gun.classList.add("aimed")}const label=$("fxGunCaption");if(label)label.textContent="銃口がこちらを向いた……";playSfx("cock")},2250);
- setTimeout(()=>{if(token!==gunSceneToken)return;gunReady=true;const own=g.loser===user.id;const btn=$("fxGunTrigger");if(btn&&own){btn.classList.remove("hide");btn.onclick=()=>{if(!gunReady||busy)return;btn.disabled=true;$("trigger").click()}}const label=$("fxGunCaption");if(label)label.textContent=own?"覚悟はいいか？ 引き金を引け！":"敗者が引き金を引くのを待っています……"},3450);
+ setTimeout(()=>{if(token!==gunSceneToken)return;const gun=$("fxGun");if(gun){gun.classList.remove("spinning");if(own)gun.classList.add("aimed")}const label=$("fxGunCaption");if(label)label.textContent=own?"銃口がこちらを向いた……":"敗者のリボルバーを見守る……";playSfx("cock")},2250);
+ setTimeout(()=>{if(token!==gunSceneToken)return;gunReady=true;const btn=$("fxGunTrigger");if(btn&&own){btn.classList.remove("hide");btn.onclick=()=>{if(!gunReady||busy)return;btn.disabled=true;$("trigger").click()}}const label=$("fxGunCaption");if(label)label.textContent=own?"覚悟はいいか？ 引き金を引け！":"敗者が引き金を引くのを待っています……"},3450);
 }
 function fxResult(result,winnerName=null){
  const bang=result==="BANG";
+ const spectator=gameData?.loser&&gameData.loser!==user.id;
  resultSequenceActive=true;
- fxShow('<div class="fx-gun-scene"><div class="fx-title fx-gold">FATE</div><div class="fx-gun-visual aimed" id="fxShotGun"></div><div class="fx-title fx-gold" id="shotTitle">引き金が動く……</div><div class="fx-gun-caption" id="shotSub">……</div></div>',winnerName?7200:4200,0);
+ fxShow('<div class="fx-gun-scene"><div class="fx-title fx-gold">FATE</div><div class="fx-gun-visual '+(spectator?"":"aimed")+'" id="fxShotGun"></div><div class="fx-title fx-gold" id="shotTitle">引き金が動く……</div><div class="fx-gun-caption" id="shotSub">……</div></div>',winnerName?7200:4200,0);
  const token=gunSceneToken;
  soundLater(bang?"bang":"dry",1150);
  setTimeout(()=>{
@@ -196,7 +198,7 @@ function fxResult(result,winnerName=null){
   title.textContent=bang?"BANG!!":"CLICK……";
   title.classList.toggle("fx-gold",!bang);
   sub.textContent=bang?"💀 脱落":"生存！";
-  if(gun&&bang)gun.style.transform="scale(1.32)";
+  if(gun&&bang)gun.style.transform=spectator?"translateX(15px) rotate(-7deg)":"scale(1.32)";
   if(bang)$("fxLayer").classList.add("fx-flash");
  },1150);
  setTimeout(()=>{if(token===gunSceneToken)$("fxLayer").classList.remove("fx-flash")},1850);
