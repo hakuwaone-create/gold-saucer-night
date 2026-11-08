@@ -31,5 +31,7 @@ async function leave(){if(!room)return;const r=await db.rpc("night_leave_room",{
 $("leave").addEventListener("click",()=>action(leave));$("leavePlaying").addEventListener("click",()=>action(leave));
 $("copy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(roomCode);note("コードをコピーしました")}catch(e){note("ルームコード: "+roomCode)}});
 try{$("name").value=localStorage.getItem("night_name")||""}catch(_){}
-if(!db)note("⚠ 通信ライブラリの読み込みに失敗しました。ネット接続を確認してください。");\nwindow.addEventListener("error",e=>note("⚠ JavaScriptエラー: "+e.message));\nwindow.addEventListener("unhandledrejection",e=>note("⚠ 通信エラー: "+(e.reason?.message||e.reason)));
+if(!db)note("⚠ 通信ライブラリの読み込みに失敗しました。ネット接続を確認してください。");
+window.addEventListener("error",e=>note("⚠ JavaScriptエラー: "+e.message));
+window.addEventListener("unhandledrejection",e=>note("⚠ 通信エラー: "+(e.reason?.message||e.reason)));
 </script></body></html>
