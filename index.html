@@ -163,7 +163,7 @@ function revolverMarkup(extra=""){return '<div class="revolver photo '+extra+'" 
 function fxReveal(cards,loser,onComplete=null){
  const safe=Array.isArray(cards)?cards:[];
  const step=3200,first=1000,total=first+safe.length*step+900;
- fxShow('<div class="fx-title">LIAR!!</div><div class="fx-sub">裏か表か……運命の公開</div><div class="fx-cardrow" id="fxCards"></div><div class="fx-sub">敗者：'+escapeHtml(loser)+'</div>',total,180);
+ fxShow('<div class="fx-title">LIAR!!</div><div class="fx-sub">裏か表か……運命の公開</div><div class="fx-cardrow" id="fxCards"></div><div class="fx-sub">敗者：'+escapeHtml(loser)+'</div',total+1800,180);
  const row=$("fxCards"),token=gunSceneToken;
  safe.forEach((card,i)=>{
   const el=document.createElement("div");el.className="fx-card back";el.setAttribute("aria-label","伏せられたカード");row.append(el);
@@ -272,7 +272,7 @@ $("rematch").addEventListener("click",()=>action(async()=>{const r=await db.rpc(
 $("playCards").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_play",{p_room:room,p_indices:[...selected]});if(r.error)throw r.error;selected.clear();await refreshGame()}));
 $("acceptCards").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_accept",{p_room:room});if(r.error)throw r.error;await refreshGame()}));
 $("challengeCards").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_challenge",{p_room:room});if(r.error)throw r.error;await refreshGame()}));
-$("trigger").addEventListener("click",()=>action(async()=>{if(!gunReady)throw Error("銃口が向くまで待ってください");const r=await db.rpc("night_game_trigger",{p_room:room});if(r.error)throw r.error;const box=$("rouletteMessage");box.classList.remove("hide");box.innerHTML="";const div=document.createElement("div");div.className=r.data==="BANG"?"bang":"click";div.textContent=r.data==="BANG"?"💥 BANG!!":"🔫 CLICK… 生存！";box.append(div);fxResult(r.data);await refreshGame()}));
+$("trigger").addEventListener("click",()=>action(async()=>{if(!gunReady)throw Error("銃口が向くまで待ってください");const r=await db.rpc("night_game_trigger",{p_room:room});if(r.error)throw r.error;const box=$("rouletteMessage");box.classList.remove("hide");box.innerHTML="";const div=document.createElement("div");div.className=r.data==="BANG"?"bang":"click";div.textContent=r.data==="BANG"?"💥 BANG!!":"🔫 CLICK… 生存！";box.append(div);resultSequenceActive=true;await refreshGame();const winnerName=gameData?.phase==="finished"?(gameData.players.find(p=>p.user_id===gameData.winner)?.name||"勝者"):null;fxResult(r.data,winnerName)}));
 async function leave(){if(!room)return;const r=await db.rpc("night_leave_room",{p_room:room});if(r.error)throw r.error;stop();room=null;show("entry")}
 $("leave").addEventListener("click",()=>action(leave));$("leavePlaying").addEventListener("click",()=>action(leave));
 $("copy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(roomCode);note("コードをコピーしました")}catch(e){note("ルームコード: "+roomCode)}});
