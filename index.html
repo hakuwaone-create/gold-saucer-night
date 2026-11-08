@@ -80,18 +80,35 @@ button.card.selected{transform:translateY(-15px) rotate(-2deg);box-shadow:0 0 22
 .fx-card.flipping{animation:slow-reveal 1.4s ease-in-out both!important}
 @keyframes slow-reveal{0%{transform:rotateY(0deg);filter:brightness(.8)}48%{transform:rotateY(90deg);filter:brightness(.35)}52%{transform:rotateY(90deg);filter:brightness(.35)}100%{transform:rotateY(0deg);filter:brightness(1)}}
 @media(prefers-reduced-motion:reduce){.table-play.new-play .table-card,.fx-card.flipping{animation:none!important}}
+
+/* v1.7 opening declaration card and interactive roulette staging */
+.declared-show{display:flex;flex-direction:column;align-items:center;gap:7px;margin:12px auto 2px}
+.declared-show.hide{display:none}
+.declared-art{width:112px;height:164px;border:2px solid #e9bd65;border-radius:10px;background-position:center;background-size:100% 100%;box-shadow:0 9px 26px #000b,0 0 15px #bb8c3855}
+#declaredCaption{color:#e8c77e;font-size:12px;letter-spacing:.08em}
+.table-play:has(.declared-show:not(.hide)) .table-pile{height:0;overflow:hidden}
+.gun-stage{padding:14px 8px 22px;margin:15px auto;text-align:center;border:1px solid #ac814f;border-radius:12px;background:radial-gradient(ellipse at center,#301923,#08080c)}
+.gun-stage.hide{display:none}
+.gun-stage-img{width:min(100%,440px);height:245px;margin:auto;background:url("assets/revolver-side.webp") center/contain no-repeat;filter:drop-shadow(0 15px 14px #000c);position:relative;transition:transform .75s ease,opacity .4s ease}
+.gun-stage-img::after{content:"";position:absolute;left:44%;top:37%;width:13%;height:26%;border:3px solid #e0d3ba;border-radius:50%;background:repeating-conic-gradient(from 0deg,#34363b 0 28deg,#a6a7a6 30deg 50deg,#404146 52deg 60deg);opacity:0;box-shadow:0 0 12px #000}
+.gun-stage-img.spinning::after{opacity:.9;animation:chamber-spin .19s linear infinite}
+.gun-stage-img.aimed{background-image:url("assets/revolver-front.webp");transform:scale(1.14)}
+.gun-stage-img.aimed::after{display:none}
+#gunStageText{color:#f4d69b;font-size:14px;font-weight:bold;letter-spacing:.06em;margin-top:10px}
+@keyframes chamber-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.gun-stage-img.spinning::after{animation:none}}
 </style></head><body><button id="soundToggle" class="fx-sound" type="button">🔇 SOUND OFF</button><div id="fxLayer" class="fx-layer" aria-live="polite"><div id="fxContent"></div><button id="fxSkip" class="alt fx-skip" type="button">演出をスキップ</button></div><main><div class="crest">🎩🃏</div><h1>ゴールドソーサーの夜会</h1><div class="sub">GOLD SAUCER NIGHT · ONLINE</div>
 <div id="message" class="notice hide" role="status"></div>
 <section id="entry" class="panel"><h2>◆ 夜会への招待</h2><label for="name">プレイヤー名</label><input id="name" maxlength="20" placeholder="名前を入力"><button id="create">👑 新しい部屋を作る</button><p class="muted center">── または ──</p><label for="codeInput">6桁のルームコード</label><input id="codeInput" inputmode="numeric" maxlength="6" placeholder="000000"><button id="join" class="alt">🚪 部屋に参加する</button><p class="muted">初回は匿名ログインを使用します。アカウント登録は不要です。</p></section>
 <section id="room" class="panel hide"><h2>◆ 夜会の控室</h2><p class="muted center">ルームコード</p><div id="code" class="code"></div><button id="copy" class="alt">📋 コードをコピー</button><p id="status" class="center"></p><div id="players"></div><div class="row"><button id="ready">✋ 準備完了</button><button id="start" class="alt hide">🎮 ゲーム開始</button></div><button id="leave" class="alt">退出する</button><p class="muted">準備が整ったらホストがゲーム開始。手札とルーレットの判定はサーバーで管理します。</p></section>
-<section id="playing" class="panel hide"><h2>🎰 夜会、開幕！</h2><p id="gameInfo" class="center"></p><div id="gamePlayers"></div><p id="gameTurn" class="center"></p><div id="tablePlay" class="table-play"><div class="table-title">✦ TABLE · 伏せられたカード ✦</div><div id="tablePile" class="table-pile"></div><div id="tableStatus" class="table-status"></div></div><div id="hand" class="hand"></div><p id="selectionInfo" class="muted center">手札から1〜3枚を選択</p><button id="playCards">🃏 選んだカードを伏せて出す</button><button id="acceptCards" class="alt hide">続行する（信じる）</button><button id="challengeCards" class="danger hide">🟥 LIAR!! 嘘を暴く</button><div id="revealBox" class="reveal hide"></div><button id="trigger" class="danger hide">🔫 引き金を引く</button><div id="rouletteMessage" class="reveal hide"></div><p class="muted">LIAR!の判定とリボルバーはサーバーで処理。実弾位置は非公開です。</p><button id="rematch" class="alt hide">🔄 同じメンバーでもう一戦！</button><button id="leavePlaying" class="alt">退出する</button></section>
-<p class="muted center">Ver.1.6 · REMATCH</p></main>
+<section id="playing" class="panel hide"><h2>🎰 夜会、開幕！</h2><p id="gameInfo" class="center"></p><div id="gamePlayers"></div><p id="gameTurn" class="center"></p><div id="tablePlay" class="table-play"><div class="table-title">✦ TABLE · 伏せられたカード ✦</div><div id="tablePile" class="table-pile"></div><div id="declaredShow" class="declared-show hide"><div id="declaredArt" class="declared-art"></div><div id="declaredCaption">今回の宣言カード</div></div><div id="tableStatus" class="table-status"></div></div><div id="hand" class="hand"></div><p id="selectionInfo" class="muted center">手札から1〜3枚を選択</p><button id="playCards">🃏 選んだカードを伏せて出す</button><button id="acceptCards" class="alt hide">続行する（信じる）</button><button id="challengeCards" class="danger hide">🟥 LIAR!! 嘘を暴く</button><div id="revealBox" class="reveal hide"></div><div id="gunStage" class="gun-stage hide"><div id="gunStageImg" class="gun-stage-img"></div><div id="gunStageText">シリンダー回転中…</div></div><button id="trigger" class="danger hide">🔫 引き金を引く</button><div id="rouletteMessage" class="reveal hide"></div><p class="muted">LIAR!の判定とリボルバーはサーバーで処理。実弾位置は非公開です。</p><button id="rematch" class="alt hide">🔄 同じメンバーでもう一戦！</button><button id="leavePlaying" class="alt">退出する</button></section>
+<p class="muted center">Ver.1.7 · SHOWDOWN</p></main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.10/dist/umd/supabase.min.js"></script>
 <script>
 "use strict";
 const $=id=>document.getElementById(id), PROJECT_URL="https://ngcfidzjvlawtspevdkk.supabase.co",KEY="sb_publishable_V9JLrLMy3FK2TaMdgUXmbQ_Nn4w0B-p";
 const db=window.supabase?.createClient(PROJECT_URL,KEY,{auth:{persistSession:true,autoRefreshToken:true}});
-let currentHostId=null,lastTableKey="",user=null,room=null,roomCode="",poll=null,busy=false,gamePoll=null,gameData=null,selected=new Set(),lastResult="",lastFxKey="",fxTimer=null,fxBusy=false,soundOn=false,audioCtx=null,fxSoundTimers=[];
+let gunStageKey="",gunReady=false,gunStageTimer=null,currentHostId=null,lastTableKey="",user=null,room=null,roomCode="",poll=null,busy=false,gamePoll=null,gameData=null,selected=new Set(),lastResult="",lastFxKey="",fxTimer=null,fxBusy=false,soundOn=false,audioCtx=null,fxSoundTimers=[];
 
 
 const SFX={
@@ -112,7 +129,7 @@ function beep(freq=440,duration=.15,type="sine",volume=.09){
  try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=type;o.frequency.setValueAtTime(freq,audioCtx.currentTime);g.gain.setValueAtTime(volume,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+duration);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+duration)}catch(_){}
 }
 $("soundToggle").onclick=()=>{soundOn=!soundOn;$("soundToggle").textContent=soundOn?"🔊 SOUND ON":"🔇 SOUND OFF";if(soundOn)beep(660,.12)};
-function fxClose(){clearSoundTimers();clearTimeout(fxTimer);$("fxLayer").classList.remove("active");$("fxContent").replaceChildren();fxBusy=false}
+function fxClose(){clearSoundTimers();$("fxLayer").classList.remove("fx-flash");clearTimeout(fxTimer);$("fxLayer").classList.remove("active");$("fxContent").replaceChildren();fxBusy=false}
 $("fxSkip").onclick=fxClose;
 function fxShow(html,duration=2200,tone=0){fxBusy=true;$("fxContent").innerHTML=html;$("fxLayer").classList.add("active");if(tone)beep(tone,.25,"sawtooth",.07);clearTimeout(fxTimer);fxTimer=setTimeout(fxClose,duration)}
 
@@ -143,7 +160,40 @@ function fxReveal(cards,loser){
  });
 }
 function escapeHtml(x){return String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function fxResult(result){const bang=result==="BANG";clearSoundTimers();playSfx("spin");soundLater("cock",850);soundLater(bang?"bang":"dry",1450);fxShow(revolverMarkup("spin")+'<div class="fx-title '+(bang?'':'fx-gold')+'">'+(bang?'BANG!!':'CLICK…')+'</div><div class="fx-sub">'+(bang?'💀 脱落':'生存！ 次の夜会へ')+'</div>',bang?3400:2400,0);setTimeout(()=>{const gun=$("fxLayer").querySelector(".revolver.photo");if(gun){gun.classList.remove("spin");gun.classList.add("front");if(bang)gun.classList.add("fire")}if(bang)$("fxLayer").classList.add("fx-flash")},1450);setTimeout(()=>$("fxLayer").classList.remove("fx-flash"),2200)}
+function fxResult(result){
+ const bang=result==="BANG";
+ clearSoundTimers();
+ fxShow(revolverMarkup("front")+'<div class="fx-title fx-gold" id="shotTitle">引き金を引く…</div><div class="fx-sub" id="shotSub">運命の一瞬</div>',3900,0);
+ soundLater("cock",350);
+ soundLater(bang?"bang":"dry",1250);
+ setTimeout(()=>{
+  const title=$("shotTitle"),sub=$("shotSub"),gun=$("fxLayer").querySelector(".revolver.photo");
+  if(!title||!sub)return;
+  title.textContent=bang?"BANG!!":"CLICK…";
+  title.classList.toggle("fx-gold",!bang);
+  sub.textContent=bang?"💀 脱落":"生存！ 次の夜会へ";
+  if(gun&&bang)gun.classList.add("fire");
+  if(bang)$("fxLayer").classList.add("fx-flash");
+ },1250);
+ setTimeout(()=>$("fxLayer").classList.remove("fx-flash"),1850);
+}
+function updateGunStage(g){
+ const stage=$("gunStage"),img=$("gunStageImg"),label=$("gunStageText");
+ if(g.phase!=="roulette"){stage.classList.add("hide");gunReady=false;gunStageKey="";clearTimeout(gunStageTimer);return}
+ stage.classList.remove("hide");
+ const key=room+":"+g.round_no+":"+g.loser;
+ if(gunStageKey===key)return;
+ gunStageKey=key;gunReady=false;clearTimeout(gunStageTimer);
+ img.className="gun-stage-img spinning";label.textContent="シリンダー回転中…";
+ playSfx("spin");
+ gunStageTimer=setTimeout(()=>{
+  if(gunStageKey!==key)return;
+  img.className="gun-stage-img aimed";
+  label.textContent=g.loser===user.id?"銃口がこちらを向いた。引き金を引け！":"銃口が向いた… 敗者の引き金を待っています";
+  gunReady=true;playSfx("cock");
+  $("trigger").disabled=g.loser!==user.id;
+ },2100);
+}
 function fxWin(name){fxShow('<div class="fx-confetti">✨ 👑 ✨</div><div class="fx-title fx-gold">WINNER</div><div class="fx-sub">'+escapeHtml(name)+'</div><div class="fx-confetti">🎊 ✨ 🎊</div>',5000,880)}
 
 function show(id){for(const s of ["entry","room","playing"])$(s).classList.toggle("hide",s!==id)}
@@ -169,6 +219,7 @@ async function refreshGame(){
  const playKey=room+":"+g.round_no+":"+(g.last_play?.user_id||"")+":"+(g.last_play?.count||0)+":"+g.pile_count;
  const table=$("tablePile");table.replaceChildren();
  const pileCount=Math.max(0,Number(g.pile_count)||0);
+ const declaredShow=$("declaredShow"),declaredArt=$("declaredArt");declaredShow.classList.toggle("hide",pileCount!==0);if(pileCount===0){declaredArt.style.backgroundImage='url("assets/card-'+String(g.declared).toLowerCase()+'.webp")';$("declaredCaption").textContent="今回の宣言カード · "+g.declared;}
  if(pileCount===0){const empty=document.createElement("span");empty.className="table-empty";empty.textContent="まだカードは出されていません";table.append(empty)}
  else{for(let i=0;i<Math.min(5,pileCount);i++){const c=document.createElement("div");c.className="table-card";c.setAttribute("aria-label","裏向きのカード");table.append(c)}}
  const actor=g.players.find(p=>p.user_id===g.last_play?.user_id);
@@ -185,17 +236,18 @@ async function refreshGame(){
  $("playCards").classList.toggle("hide",g.phase!=="play");$("playCards").disabled=!mine||selected.size===0;
  $("acceptCards").classList.toggle("hide",g.phase!=="challenge");$("acceptCards").disabled=!mine;
  $("challengeCards").classList.toggle("hide",g.phase!=="challenge");$("challengeCards").disabled=!mine;
- $("trigger").classList.toggle("hide",g.phase!=="roulette");$("trigger").disabled=g.loser!==user.id;
+ updateGunStage(g);
+ $("trigger").classList.toggle("hide",g.phase!=="roulette");$("trigger").disabled=g.loser!==user.id||!gunReady;
  const rev=$("revealBox");rev.classList.toggle("hide",g.phase!=="roulette");if(g.phase==="roulette"){rev.textContent="🟥 LIAR!　公開カード："+(g.reveal||[]).join(" · ")+"　｜　敗者："+(g.players.find(p=>p.user_id===g.loser)?.name||"不明")}
  if(g.phase==="finished"){$("revealBox").classList.remove("hide");$("revealBox").textContent="🏆 WINNER 🏆　"+(g.players.find(p=>p.user_id===g.winner)?.name||"")};
  if(g.phase==="challenge")$("selectionInfo").textContent="信じて続行するか、LIAR!を宣言！";else refreshHandSelection();
 }
 function refreshHandSelection(){const cards=$("hand").children;for(let i=0;i<cards.length;i++)cards[i].classList.toggle("selected",selected.has(i));$("selectionInfo").textContent=selected.size+"枚選択中（最大3枚）";$("playCards").disabled=!gameData||gameData.turn_user!==user.id||selected.size===0}
-$("rematch").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_rematch",{p_room:room});if(r.error)throw r.error;fxClose();$("rouletteMessage").classList.add("hide");selected.clear();lastFxKey="";lastTableKey="";await refreshGame()}));
+$("rematch").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_rematch",{p_room:room});if(r.error)throw r.error;fxClose();gunStageKey="";gunReady=false;clearTimeout(gunStageTimer);$("rouletteMessage").classList.add("hide");selected.clear();lastFxKey="";lastTableKey="";await refreshGame()}));
 $("playCards").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_play",{p_room:room,p_indices:[...selected]});if(r.error)throw r.error;selected.clear();await refreshGame()}));
 $("acceptCards").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_accept",{p_room:room});if(r.error)throw r.error;await refreshGame()}));
 $("challengeCards").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_challenge",{p_room:room});if(r.error)throw r.error;await refreshGame()}));
-$("trigger").addEventListener("click",()=>action(async()=>{const r=await db.rpc("night_game_trigger",{p_room:room});if(r.error)throw r.error;const box=$("rouletteMessage");box.classList.remove("hide");box.innerHTML="";const div=document.createElement("div");div.className=r.data==="BANG"?"bang":"click";div.textContent=r.data==="BANG"?"💥 BANG!!":"🔫 CLICK… 生存！";box.append(div);fxResult(r.data);await refreshGame()}));
+$("trigger").addEventListener("click",()=>action(async()=>{if(!gunReady)throw Error("銃口が向くまで待ってください");const r=await db.rpc("night_game_trigger",{p_room:room});if(r.error)throw r.error;const box=$("rouletteMessage");box.classList.remove("hide");box.innerHTML="";const div=document.createElement("div");div.className=r.data==="BANG"?"bang":"click";div.textContent=r.data==="BANG"?"💥 BANG!!":"🔫 CLICK… 生存！";box.append(div);fxResult(r.data);await refreshGame()}));
 async function leave(){if(!room)return;const r=await db.rpc("night_leave_room",{p_room:room});if(r.error)throw r.error;stop();room=null;show("entry")}
 $("leave").addEventListener("click",()=>action(leave));$("leavePlaying").addEventListener("click",()=>action(leave));
 $("copy").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(roomCode);note("コードをコピーしました")}catch(e){note("ルームコード: "+roomCode)}});
