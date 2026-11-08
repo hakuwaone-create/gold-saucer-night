@@ -163,7 +163,7 @@ function revolverMarkup(extra=""){return '<div class="revolver photo '+extra+'" 
 function fxReveal(cards,loser,onComplete=null){
  const safe=Array.isArray(cards)?cards:[];
  const step=3200,first=1000,total=first+safe.length*step+900;
- fxShow('<div class="fx-title">LIAR!!</div><div class="fx-sub">裏か表か……運命の公開</div><div class="fx-cardrow" id="fxCards"></div><div class="fx-sub">敗者：'+escapeHtml(loser)+'</div',total+1800,180);
+ fxShow('<div class="fx-title">LIAR!!</div><div class="fx-sub">裏か表か……運命の公開</div><div class="fx-cardrow" id="fxCards"></div><div class="fx-sub">敗者：'+escapeHtml(loser)+'</div>',total+1800,180);
  const row=$("fxCards"),token=gunSceneToken;
  safe.forEach((card,i)=>{
   const el=document.createElement("div");el.className="fx-card back";el.setAttribute("aria-label","伏せられたカード");row.append(el);
